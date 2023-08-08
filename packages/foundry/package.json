@@ -7,14 +7,18 @@
     "fork": "anvil --fork-url ${0:-mainnet} --config-out localhost.json",
     "compile": "forge compile",
     "generate": "node script/generateAccount.js",
-    "deploy": "forge build --build-info --build-info-path out/build-info/ && forge script script/Deploy.s.sol --rpc-url ${1:-default_network} --broadcast --legacy && node script/generateTsAbis.js",
-    "deploy:verify": "forge build --build-info --build-info-path out/build-info/ && forge script script/Deploy.s.sol --rpc-url ${1:-default_network} --broadcast --legacy --verify && node script/generateTsAbis.js",
+    "__deploy": "forge build --build-info --build-info-path out/build-info/ && forge script script/Deploy.s.sol --rpc-url ${0:-default_network} --broadcast && node script/generateTsAbis.js",
+    "__deploy:minimal": "forge build --build-info --build-info-path out/build-info/ && forge script script/Deploy.s.sol --broadcast --sig 'run(uint256,address,string,string)' 2 0x90F79bf6EB2c4f870365E785982E1f101E93b906 'NAME' 'NM' --rpc-url ${0:-default_network} && node script/generateTsAbis.js",
+    "deploy": "forge build --build-info --build-info-path out/build-info/ && yarn tsc script/deploy.ts && node script/deploy.js",
+    "__deploy:verify": "forge build --build-info --build-info-path out/build-info/ && forge script script/Deploy.s.sol --rpc-url ${0:-default_network} --broadcast --verify && node script/generateTsAbis.js && && node script/generateTsAbis.js",
     "lint": "forge fmt",
     "test": "forge test"
   },
   "devDependencies": {
+    "@types/node": "^20.4.5",
     "@types/prettier": "^2",
-    "@types/qrcode": "^1"
+    "@types/qrcode": "^1",
+    "tsc": "^2.0.4"
   },
   "dependencies": {
     "dotenv": "^16.3.1",
@@ -22,6 +26,7 @@
     "ethers": "^5.7.1",
     "prettier": "^2.8.8",
     "qrcode": "^1.5.3",
-    "toml": "^3.0.0"
+    "toml": "^3.0.0",
+    "typescript": "^5.1.6"
   }
 }

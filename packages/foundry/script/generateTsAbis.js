@@ -1,5 +1,7 @@
+const generateTsAbisExtension = require("./generateTsAbisExtension.js");
 const fs = require("fs");
 const path = require("path");
+
 //@ts-expect-error  This script runs after `forge deploy` therefore its deterministic that it will present
 // const deployments = require("../deployments.json");
 const prettier = require("prettier");
@@ -27,43 +29,95 @@ function getAbiOfContract(contractName) {
   return artifactJson.abi;
 }
 
-function main() {
+function getPreviousAllGeneratedContracts(filePath) {
+  const fileContent = fs.readFileSync(filePath, "utf8");
+
+  // Extract the content between the curly braces { ... }
+  const matches = fileContent.match(/\{([\s\S]*)\}/);
+
+  if (!matches || matches.length < 2) {
+    throw new Error("Unable to find contracts object in the file.");
+  }
+
+  const contractsContent = `{${matches[1]}}`;
+
+  // Parse the content as JSON to get the contracts object
+  const contractsModule = new Function(`return ${contractsContent}`)();
+  const allGeneratedContracts = contractsModule || {};
+
+  return allGeneratedContracts;
+}
+
+function generateTsAbis(scriptName, clearAllContracts) {
   const current_path_to_broadcast = path.join(
     __dirname,
     "..",
-    "broadcast/Deploy.s.sol"
+    "broadcast",
+    scriptName
   );
   const current_path_to_deployments = path.join(__dirname, "..", "deployments");
 
   const chains = getDirectories(current_path_to_broadcast);
   const Deploymentchains = getFiles(current_path_to_deployments);
 
-  var deployments = {};
+  let deployments = {};
 
   Deploymentchains.forEach((chain) => {
     if (!chain.endsWith(".json")) return;
     chain = chain.slice(0, -5);
-    var deploymentObject = JSON.parse(
+    let deploymentObject = JSON.parse(
       fs.readFileSync(`${current_path_to_deployments}/${chain}.json`)
     );
     deployments[chain] = deploymentObject;
   });
 
-  var allGeneratedContracts = {};
+  const TARGET_DIR = "../nextjs/generated/";
+
+  let allGeneratedContracts = {};
+  if (!clearAllContracts && fs.existsSync(TARGET_DIR)) {
+    allGeneratedContracts = getPreviousAllGeneratedContracts(
+      `${TARGET_DIR}deployedContracts.ts`
+    );
+  } else {
+    chains.forEach((chain) => {
+      allGeneratedContracts[chain] = [];
+      allGeneratedContracts[chain].push({
+        name: deployments[chain].networkName || "hardhat",
+        chainId: chain,
+        contracts: {},
+      });
+    });
+  }
 
   chains.forEach((chain) => {
-    allGeneratedContracts[chain] = [];
-    allGeneratedContracts[chain].push({
-      name: deployments[chain].networkName || "hardhat",
-      chainId: chain,
-      contracts: {},
-    });
-    var broadCastObject = JSON.parse(
+    let broadCastObject = JSON.parse(
       fs.readFileSync(`${current_path_to_broadcast}/${chain}/run-latest.json`)
     );
-    var transactionsCreate = broadCastObject.transactions.filter(
+    let transactionsCreate = broadCastObject.transactions.filter(
       (transaction) => transaction.transactionType == "CREATE"
     );
+
+    /* ========================================================================== */
+    /*                  ADD CONTRACT CREATE BY FACTORY CONTRACTS                  */
+    /* ========================================================================== */
+    transactionsCreate =
+      generateTsAbisExtension.filterContracts(transactionsCreate);
+
+    let newSafeContract =
+      generateTsAbisExtension.getNewSafeContract(broadCastObject);
+    if (newSafeContract) {
+      transactionsCreate.push(newSafeContract);
+    }
+    const contractsDeployedWithFactory =
+      generateTsAbisExtension.getContractsDeployedWithFactory(broadCastObject);
+    transactionsCreate = [
+      ...transactionsCreate,
+      ...contractsDeployedWithFactory,
+    ];
+
+    /* ========================================================================== */
+    /*                END ADD CONTRACT CREATE BY FACTORY CONTRACTS                */
+    /* ========================================================================== */
     transactionsCreate.forEach((transaction) => {
       allGeneratedContracts[chain][0]["contracts"][
         deployments[chain][transaction.contractAddress] ||
@@ -74,8 +128,6 @@ function main() {
       };
     });
   });
-
-  const TARGET_DIR = "../nextjs/generated/";
 
   const fileContent = Object.entries(allGeneratedContracts).reduce(
     (content, [chainId, chainConfig]) => {
@@ -102,9 +154,9 @@ function main() {
   );
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(error);
-  process.exitCode = 1;
-}
+/* ========================================================================== */
+/*                EXPORT generateTsAbis TO BE CALLABLE BY OTHER JS SCRIPT               */
+/* ========================================================================== */
+module.exports = {
+  generateTsAbis,
+};

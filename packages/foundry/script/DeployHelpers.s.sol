@@ -2,11 +2,8 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/Script.sol";
-import "forge-std/Vm.sol";
 
 contract ScaffoldETHDeploy is Script {
-    error InvalidChain();
-
     struct Deployment {
         string name;
         address addr;
@@ -51,33 +48,8 @@ contract ScaffoldETHDeploy is Script {
             );
         }
 
-        string memory chainName;
-
-        try this.getChain() returns (Chain memory chain) {
-            chainName = chain.name;
-        } catch {
-            chainName = findChainName();
-        }
-        jsonWrite = vm.serializeString(jsonWrite, "networkName", chainName);
+        Chain memory chain = getChain(block.chainid);
+        jsonWrite = vm.serializeString(jsonWrite, "networkName", chain.name);
         vm.writeJson(jsonWrite, path);
-    }
-
-    function getChain() public returns (Chain memory) {
-        return getChain(block.chainid);
-    }
-
-    function findChainName() public returns (string memory) {
-        uint256 thisChainId = block.chainid;
-        string[2][] memory allRpcUrls = vm.rpcUrls();
-        for (uint256 i = 0; i < allRpcUrls.length; i++) {
-            try vm.createSelectFork(allRpcUrls[i][1]) {
-                if (block.chainid == thisChainId) {
-                    return allRpcUrls[i][0];
-                }
-            } catch {
-                continue;
-            }
-        }
-        revert InvalidChain();
     }
 }
