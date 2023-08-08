@@ -42,7 +42,9 @@ export const useGetResturantNfts = ({ resturant, onlyOnSale }: UseGetResturantNf
     watch: true,
   });
 
-  const getNftReads = tokenIds?.map(tokenId => {
+  const tokenIdsTyped = tokenIds && tokenIds.map(tokenIdData => tokenIdData.result as bigint);
+
+  const getNftReads = tokenIdsTyped?.map(tokenId => {
     return {
       address: resturant,
       abi: contracts.ResturantToken.abi,
@@ -51,7 +53,7 @@ export const useGetResturantNfts = ({ resturant, onlyOnSale }: UseGetResturantNf
     };
   });
 
-  const getOwnerReads = tokenIds?.map(tokenId => {
+  const getOwnerReads = tokenIdsTyped?.map(tokenId => {
     return {
       address: resturant,
       abi: contracts.ResturantToken.abi,
