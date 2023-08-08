@@ -1,13 +1,13 @@
 import { WriteOnlyFunctionForm } from "./WriteOnlyFunctionForm";
 import { Abi, AbiFunction } from "abitype";
-import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
+import { Contract } from "~~/utils/scaffold-eth/contract";
 
 export const ContractWriteMethods = ({
   onChange,
   deployedContractData,
 }: {
   onChange: () => void;
-  deployedContractData: Contract<ContractName>;
+  deployedContractData: Contract<any>;
 }) => {
   if (!deployedContractData) {
     return null;

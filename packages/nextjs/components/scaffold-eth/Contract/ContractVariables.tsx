@@ -1,13 +1,13 @@
 import { DisplayVariable } from "./DisplayVariable";
 import { Abi, AbiFunction } from "abitype";
-import { Contract, ContractName } from "~~/utils/scaffold-eth/contract";
+import { Contract } from "~~/utils/scaffold-eth/contract";
 
 export const ContractVariables = ({
   refreshDisplayVariables,
   deployedContractData,
 }: {
   refreshDisplayVariables: boolean;
-  deployedContractData: Contract<ContractName>;
+  deployedContractData: Contract<any>;
 }) => {
   if (!deployedContractData) {
     return null;

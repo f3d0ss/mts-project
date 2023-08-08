@@ -1,63 +1,50 @@
-import Link from "next/link";
 import type { NextPage } from "next";
-import { BugAntIcon, MagnifyingGlassIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { MetaHeader } from "~~/components/MetaHeader";
+import { Spinner } from "~~/components/Spinner";
+import ControllerInfo from "~~/components/home/ControllerInfo";
+import ControllerResturants from "~~/components/home/ControllerResturants";
+import ControllerSettings from "~~/components/home/ControllerSettings";
+import { useDeployedContractInfo, useScaffoldContractRead } from "~~/hooks/scaffold-eth";
+import { useSafe } from "~~/hooks/useSafeRead";
+import { getTargetNetwork } from "~~/utils/scaffold-eth";
+
+const CONTROLLER_CONTRACT_NAME = "MTSController";
 
 const Home: NextPage = () => {
+  const { data: controllerContractData, isLoading: deployedContractLoading } =
+    useDeployedContractInfo(CONTROLLER_CONTRACT_NAME);
+
+  const configuredNetwork = getTargetNetwork();
+
+  const { data: owner } = useScaffoldContractRead({
+    contractName: CONTROLLER_CONTRACT_NAME,
+    functionName: "owner",
+  });
+  const { isSafe } = useSafe(owner);
+
+  if (!controllerContractData) {
+    return <p className="text-3xl mt-14">{`No controller found on chain "${configuredNetwork.name}"!`}</p>;
+  }
   return (
     <>
       <MetaHeader />
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center mb-8">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
-          </h1>
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold">packages/nextjs/pages/index.tsx</code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract <code className="italic bg-base-300 text-base font-bold">YourContract.sol</code> in{" "}
-            <code className="italic bg-base-300 text-base font-bold">packages/hardhat/contracts</code>
-          </p>
-        </div>
-
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contract
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <SparklesIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Experiment with{" "}
-                <Link href="/example-ui" passHref className="link">
-                  Example UI
-                </Link>{" "}
-                to build your own UI.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
+      {deployedContractLoading ? (
+        <Spinner height="50px" width="50px" />
+      ) : (
+        <div className="flex flex-col gap-y-6 lg:gap-y-8 py-8 lg:py-12 justify-center items-center">
+          <div className="flex items-center flex-col pt-10 w-full">
+            <span>{isSafe ? "Is a Safe" : "Not a Safe"}</span>
+          </div>
+          <div className="col-span-5 grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10">
+            <ControllerInfo
+              controllerName={CONTROLLER_CONTRACT_NAME}
+              controllerAddress={controllerContractData.address}
+            />
+            <ControllerResturants />
+            <ControllerSettings />
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 };
