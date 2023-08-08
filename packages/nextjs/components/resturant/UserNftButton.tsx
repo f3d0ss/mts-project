@@ -34,7 +34,7 @@ export default function UserNftButton({ nft }: UserNftButtonProps) {
   }
 
   let needAllowance = false;
-  if (allawance && allawance < nft.price) {
+  if (allawance !== undefined && allawance < nft.price) {
     needAllowance = true;
   }
 
