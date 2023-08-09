@@ -12,28 +12,38 @@ type FetchedNft = {
 
 type UseGetResturantNftsProps = {
   resturant: string;
+  ownedBy?: string;
   onlyOnSale?: boolean;
 };
 
-export const useGetResturantNfts = ({ resturant, onlyOnSale }: UseGetResturantNftsProps) => {
-  const functionName = onlyOnSale ? "balanceOf" : "totalSupply";
-  const args: [string] | undefined = onlyOnSale ? [resturant] : undefined;
+export const useGetResturantNfts = ({ resturant, onlyOnSale, ownedBy }: UseGetResturantNftsProps) => {
+  if (onlyOnSale) {
+    ownedBy = resturant;
+  }
+  const functionTotalName = ownedBy ? "balanceOf" : "totalSupply";
+  const args: [string] | undefined = ownedBy ? [ownedBy] : undefined;
+
+  console.log(args);
   const { data: numberOfTokenBigInt, isLoading: isLoadingNumberOfToken } = useContractRead({
     address: resturant,
     abi: contracts.ResturantToken.abi,
-    functionName: functionName,
+    functionName: functionTotalName,
     args: args,
     watch: true,
   });
 
   const numberOfToken = Number(numberOfTokenBigInt);
+  console.log(numberOfToken);
 
+  const functionByIndexName = ownedBy ? "tokenOfOwnerByIndex" : "tokenByIndex";
   const tokenIdsReads = Array.from({ length: numberOfToken }).map((_, i) => {
+    const argsByIndex: [string, bigint] | undefined = ownedBy ? [ownedBy, BigInt(i)] : undefined;
+
     return {
       address: resturant,
       abi: contracts.ResturantToken.abi,
-      functionName: "tokenByIndex",
-      args: [i],
+      functionName: functionByIndexName,
+      args: onlyOnSale ? [resturant, BigInt(i)] : argsByIndex,
     };
   });
 
