@@ -37,7 +37,7 @@ export const useGetResturantNfts = ({ resturant, onlyOnSale, ownedBy }: UseGetRe
 
   const functionByIndexName = ownedBy ? "tokenOfOwnerByIndex" : "tokenByIndex";
   const tokenIdsReads = Array.from({ length: numberOfToken }).map((_, i) => {
-    const argsByIndex: [string, bigint] | undefined = ownedBy ? [ownedBy, BigInt(i)] : undefined;
+    const argsByIndex: [string, bigint] | [bigint] = ownedBy ? [ownedBy, BigInt(i)] : [BigInt(i)];
 
     return {
       address: resturant,
