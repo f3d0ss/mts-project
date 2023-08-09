@@ -37,7 +37,7 @@ export const ResturantContractUI = ({ index, selectedContract = "" }: ResturantC
   //   walletClient: publicClient,
   // });
 
-  const { data: resturantName } = useResturantContract(resturantAddress, "name", undefined);
+  const { data: resturantName } = useResturantContract({ address: resturantAddress, functionName: "name" });
 
   const className = resturantName === selectedContract ? "" : "hidden";
 

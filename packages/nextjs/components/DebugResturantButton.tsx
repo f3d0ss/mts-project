@@ -17,7 +17,7 @@ export const DebugResturantButton = ({
     args: [index],
   });
 
-  const { data: resturantName } = useResturantContract(resturantAddress, "name", undefined);
+  const { data: resturantName } = useResturantContract({ address: resturantAddress, functionName: "name" });
 
   console.log(`${resturantAddress} : ${resturantName}`);
   return (

@@ -9,7 +9,15 @@ import { getTargetNetwork } from "~~/utils/scaffold-eth";
  * @param config.functionName - name of the function to be called
  * @param config.args - args to be passed to the function call
  */
-export const useResturantContract = (address: string | undefined, functionName: any, args: any) => {
+export const useResturantContract = ({
+  address,
+  functionName,
+  args,
+}: {
+  address: string | undefined;
+  functionName: any;
+  args?: any;
+}) => {
   return useContractRead({
     chainId: getTargetNetwork().id,
     functionName,
