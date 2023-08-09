@@ -38,8 +38,6 @@ export default function UserNftButton({ nft }: UserNftButtonProps) {
     needAllowance = true;
   }
 
-  console.log("Render those buttons biatch");
-
   if (!hasEnoughFund) {
     return (
       <button
