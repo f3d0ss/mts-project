@@ -1,6 +1,7 @@
 import React from "react";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import contracts from "~~/generated/usefulAbis";
+import { useTransactor } from "~~/hooks/scaffold-eth";
 import { ResturantNft } from "~~/types/resturantNft";
 
 type BuyNftButtonProps = {
@@ -8,6 +9,8 @@ type BuyNftButtonProps = {
 };
 
 export default function BuyNftButton({ nft }: BuyNftButtonProps) {
+  const writeTxn = useTransactor();
+
   const { config: buyConfig } = usePrepareContractWrite({
     address: nft.resturant,
     abi: contracts.ResturantToken.abi,
@@ -16,7 +19,7 @@ export default function BuyNftButton({ nft }: BuyNftButtonProps) {
     value: 0n,
   });
 
-  const { write: buyToken } = useContractWrite(buyConfig);
+  const { writeAsync: buyToken } = useContractWrite(buyConfig);
 
   console.log("Render those buttons biatch");
 
@@ -26,7 +29,7 @@ export default function BuyNftButton({ nft }: BuyNftButtonProps) {
         !buyToken ? "loading" : ""
       }`}
       disabled={!buyToken}
-      onClick={() => buyToken && buyToken()}
+      onClick={() => buyToken && writeTxn(() => buyToken())}
     >
       Buy Token
     </button>

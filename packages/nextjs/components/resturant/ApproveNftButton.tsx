@@ -1,6 +1,7 @@
 import React from "react";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import contracts from "~~/generated/usefulAbis";
+import { useTransactor } from "~~/hooks/scaffold-eth";
 import { ResturantNft } from "~~/types/resturantNft";
 
 type ApproveNftButtonProps = {
@@ -8,6 +9,8 @@ type ApproveNftButtonProps = {
 };
 
 export default function ApproveNftButton({ nft }: ApproveNftButtonProps) {
+  const writeTxn = useTransactor();
+
   const approveArgs: [string, bigint] | undefined = nft.price ? [nft.resturant, nft.price] : undefined;
 
   const { config: approveConfig } = usePrepareContractWrite({
@@ -17,7 +20,7 @@ export default function ApproveNftButton({ nft }: ApproveNftButtonProps) {
     args: approveArgs,
   });
 
-  const { write: approveToken } = useContractWrite(approveConfig);
+  const { writeAsync: approveToken } = useContractWrite(approveConfig);
 
   console.log("Render those buttons biatch");
 
@@ -27,7 +30,7 @@ export default function ApproveNftButton({ nft }: ApproveNftButtonProps) {
         !approveToken ? "loading" : ""
       }`}
       disabled={!approveToken}
-      onClick={() => approveToken && approveToken()}
+      onClick={() => approveToken && writeTxn(() => approveToken())}
     >
       Approve Tokens
     </button>
