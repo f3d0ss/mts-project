@@ -15,6 +15,18 @@ export default function NftPreview({ nft, buttons }: NftPreviewProps) {
       <div className="w-full aspect-square bg-base-300"> IMAGE </div>
       <div className="p-3">
         <div className="py-2">
+          <span className="font-bold">Resturant</span>: {nft ? nft.resturant : <Spinner />}
+        </div>
+        {/* ONLY FOR DEBUG */}
+        <div className="py-2">
+          <span className="font-bold">Id</span>: {nft ? nft.id.toString() : <Spinner />}
+        </div>
+        <div className="py-2">
+          <span className="font-bold">Owner</span>: {nft ? nft.owner : <Spinner />}
+        </div>
+        {/* ONLY FOR DEBUG */}
+
+        <div className="py-2">
           <span className="font-bold">Date</span>:{" "}
           {nft ? (
             getDateFromTimestamp(nft.reservationDate).toLocaleDateString(undefined, {
