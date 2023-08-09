@@ -37,19 +37,20 @@ export default function ControllerBalances({ controllerAddress }: ControllerBala
 
     for (const setAcceptableMinPriceEvent of setAcceptableMinPriceEvents || []) {
       console.log(setAcceptableMinPriceEvent);
-      const tokenAddress = setAcceptableMinPriceEvent["args"][0] as string;
+      const tokenAddress = setAcceptableMinPriceEvent.args.token as string;
 
       oldAcceptableTokens.add(tokenAddress);
     }
 
     // for (const removedResturantEvent of removedResturantEvents || []) {
-    //   const index = removedResturantEvent["args"][0].toNumber() as number;
+    //   const index = removedResturantEvent.args.token as string;
     //   oldSetAcceptableMinPrice.delete(index);
     // }
     setOldTokens(oldAcceptableTokens);
   }, [setAcceptableMinPriceEvents]);
 
   const tokens = [...new Set<string>([...newTokens, ...oldTokens])];
+  console.log(oldTokens);
   return (
     <>
       {tokens.map(tokenAddress => (

@@ -34,8 +34,8 @@ export const useControllerMinPrices = () => {
   useEffect(() => {
     const acceptableTokenFromHistoryEvent = new Map<AcceptableTokenAddress, bigint>();
     for (const addNewAcceptableTokenEvent of addNewAcceptableTokenEvents?.reverse() || []) {
-      const tokenAddress = addNewAcceptableTokenEvent["args"][0] as AcceptableTokenAddress;
-      const minPrice = addNewAcceptableTokenEvent["args"][1] as bigint;
+      const tokenAddress = addNewAcceptableTokenEvent.args.token as AcceptableTokenAddress;
+      const minPrice = addNewAcceptableTokenEvent.args.minPrice as bigint;
       acceptableTokenFromHistoryEvent.set(tokenAddress, minPrice);
     }
     setAcceptableTokens(acceptableTokenFromHistoryEvent);
