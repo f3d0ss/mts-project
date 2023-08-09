@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { NextPage } from "next";
 import { MetaHeader } from "~~/components/MetaHeader";
 import { Spinner } from "~~/components/Spinner";
+import AcceptUserNft from "~~/components/resturant/admin/AcceptUserNft";
 import AdminNftPreview from "~~/components/resturant/admin/AdminNftPreview";
 import MintNewNft from "~~/components/resturant/admin/MintNewNft";
 import ResturantInfo from "~~/components/resturant/admin/ResturantInfo";
@@ -30,6 +31,8 @@ const ResturantAdminPage: NextPage = dynamic(
                   <ResturantInfo resturantAddress={resturant} />
                   <div className="col-span-1 h-12 text-center font-bold">Mint</div>
                   <MintNewNft resturantAddress={resturant} />
+                  <div className="col-span-1 h-12 text-center font-bold">Mint</div>
+                  <AcceptUserNft resturantAddress={resturant} />
                 </div>
               </div>
               <div className="col-span-2 grid grid-cols-2 gap-2 content-start">
