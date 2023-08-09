@@ -4,7 +4,7 @@ import { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { MetaHeader } from "~~/components/MetaHeader";
 import { Spinner } from "~~/components/Spinner";
-import UserNftPreview from "~~/components/resturant/UserNftPreview";
+import OwnedNftPreview from "~~/components/my-nft/OwnedNftPreview";
 import { useControllerResturant } from "~~/hooks/useControllerResturants";
 import { useGetResturantsNfts } from "~~/hooks/useGetResturantsNfts";
 
@@ -27,7 +27,7 @@ const MyNfts: NextPage = dynamic(
               {[...nfts.values()]
                 ?.sort((nftA, nftB) => nftA.reservationDate - nftB.reservationDate)
                 .map(nft => (
-                  <UserNftPreview nft={nft} key={nft.id.toString()} />
+                  <OwnedNftPreview nft={nft} key={nft.id.toString()} />
                 ))}
             </div>
           )}
