@@ -3,7 +3,7 @@ import { useBalance } from "wagmi";
 import { useGlobalState } from "~~/services/store/store";
 import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
-export function useAccountBalance(address?: string) {
+export function useAccountBalance(address?: string, token?: string) {
   const [isEthBalance, setIsEthBalance] = useState(true);
   const [balance, setBalance] = useState<number | null>(null);
   const price = useGlobalState(state => state.nativeCurrencyPrice);
@@ -14,15 +14,16 @@ export function useAccountBalance(address?: string) {
     isLoading,
   } = useBalance({
     address,
+    token,
     watch: true,
     chainId: getTargetNetwork().id,
   });
 
   const onToggleBalance = useCallback(() => {
-    if (price > 0) {
+    if (price > 0 && !token) {
       setIsEthBalance(!isEthBalance);
     }
-  }, [isEthBalance, price]);
+  }, [isEthBalance, price, token]);
 
   useEffect(() => {
     if (fetchedBalanceData?.formatted) {
@@ -30,5 +31,6 @@ export function useAccountBalance(address?: string) {
     }
   }, [fetchedBalanceData]);
 
-  return { balance, price, isError, isLoading, onToggleBalance, isEthBalance };
+  const symbol = fetchedBalanceData?.symbol;
+  return { balance, symbol, price, isError, isLoading, onToggleBalance, isEthBalance };
 }

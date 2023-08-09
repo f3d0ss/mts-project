@@ -4,14 +4,18 @@ import { getTargetNetwork } from "~~/utils/scaffold-eth";
 type TBalanceProps = {
   address?: string;
   className?: string;
+  token?: string;
 };
 
 /**
  * Display (ETH & USD) balance of an ETH address.
  */
-export const Balance = ({ address, className = "" }: TBalanceProps) => {
+export const Balance = ({ address, className = "", token }: TBalanceProps) => {
   const configuredNetwork = getTargetNetwork();
-  const { balance, price, isError, isLoading, onToggleBalance, isEthBalance } = useAccountBalance(address);
+  const { balance, symbol, price, isError, isLoading, onToggleBalance, isEthBalance } = useAccountBalance(
+    address,
+    token,
+  );
 
   if (!address || isLoading || balance === null) {
     return (
@@ -41,7 +45,9 @@ export const Balance = ({ address, className = "" }: TBalanceProps) => {
         {isEthBalance ? (
           <>
             <span>{balance?.toFixed(4)}</span>
-            <span className="text-[0.8em] font-bold ml-1">{configuredNetwork.nativeCurrency.symbol}</span>
+            <span className="text-[0.8em] font-bold ml-1">
+              {token ? symbol : configuredNetwork.nativeCurrency.symbol}
+            </span>
           </>
         ) : (
           <>

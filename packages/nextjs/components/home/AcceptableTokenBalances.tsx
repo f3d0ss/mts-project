@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
-import ControllerBalanceInToken from "./ControllerBalanceInToken";
+import { Balance } from "../scaffold-eth";
 import { useScaffoldEventHistory, useScaffoldEventSubscriber } from "~~/hooks/scaffold-eth";
 
-type ControllerBalancesProps = {
+type AcceptableTokenBalancesProps = {
   controllerAddress: string;
+  addressToCheck?: string;
 };
 
-export default function ControllerBalances({ controllerAddress }: ControllerBalancesProps) {
+export default function AcceptableTokenBalances({
+  controllerAddress,
+  addressToCheck = controllerAddress,
+}: AcceptableTokenBalancesProps) {
   const [newTokens, setNewTokens] = useState<Set<string>>(new Set());
   const [oldTokens, setOldTokens] = useState<Set<string>>(new Set());
   useScaffoldEventSubscriber({
@@ -54,8 +58,8 @@ export default function ControllerBalances({ controllerAddress }: ControllerBala
   return (
     <>
       {tokens.map(tokenAddress => (
-        <div className="flex gap-1 items-center" key={tokenAddress}>
-          <ControllerBalanceInToken controllerAddress={controllerAddress} tokenAddress={tokenAddress} />
+        <div className="flex gap-1 items-center py-1" key={tokenAddress}>
+          <Balance address={addressToCheck} token={tokenAddress} className="px-0 h-1.5 min-h-[0.375rem]" />
         </div>
       ))}
     </>
