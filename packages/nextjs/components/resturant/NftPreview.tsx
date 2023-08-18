@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Spinner } from "../Spinner";
 import NftPrice from "./NftPrice";
+import ResturantName from "./ResturantName";
 import { ResturantNft } from "~~/types/resturantNft";
 import { getDateFromTimestamp } from "~~/utils/scaffold-eth/getDate";
 
@@ -15,7 +16,7 @@ export default function NftPreview({ nft, buttons }: NftPreviewProps) {
       <div className="w-full aspect-square bg-base-300"> IMAGE </div>
       <div className="p-3">
         <div className="py-2">
-          <span className="font-bold">Resturant</span>: {nft ? nft.resturant : <Spinner />}
+          <ResturantName resturantAddress={nft.resturant} />
         </div>
         {/* ONLY FOR DEBUG */}
         <div className="py-2">
