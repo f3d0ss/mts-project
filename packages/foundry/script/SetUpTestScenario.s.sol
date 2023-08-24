@@ -15,15 +15,16 @@ import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SetUpTestScenario is BaseScript {
     uint256 constant NUMBER_OF_RESTURANT = 3;
-    uint256 constant NUMBER_OF_NFT_PER_RESTURANT = 3;
+    uint256 constant NUMBER_OF_NFT_PER_RESTURANT = 10;
     address constant RESTURANT_OWNER = 0x6C1b125e0D951396C0256ab083615a558C615648;
     string constant RESTURANT_TOKEN_NAME = "Resturant";
     string constant RESTURANT_TOKEN_SYMBOL = "RT";
+    string constant IPFS_METADATA_BASE = "ipfs://bafybeibc5sgo2plmjkq2tzmhrn54bk3crhnc23zd2msg4ea7a4pxrkgfna/";
 
     function run() public exportDeployments returns (MTSController, ResturantToken[NUMBER_OF_RESTURANT] memory) {
         uint256 ownersPk = vm.envUint("MTS_OWNER");
         address ownersAdddress = vm.addr(ownersPk);
-        fundControllerOwner(ownersAdddress);
+        fundAddress(ownersAdddress);
 
         MTSController controller = new DeployMTSController().run(ownersAdddress);
 
@@ -45,6 +46,7 @@ contract SetUpTestScenario is BaseScript {
 
         new AddAlloedTokenToController().run(address(controller), address(erc20), 1);
 
+        fundAddress(RESTURANT_OWNER);
         vm.startBroadcast(RESTURANT_OWNER);
         for (uint256 i = 0; i < resturantTokens.length; i++) {
             for (uint256 k = 0; k < NUMBER_OF_NFT_PER_RESTURANT; k++) {
@@ -52,7 +54,12 @@ contract SetUpTestScenario is BaseScript {
                 if (k % 3 != 0) {
                     reservationDate += 10 * 60 * 60 * 24;
                 }
-                resturantTokens[i].safeMint((k + 1) * 1 ether, address(erc20), reservationDate, "ipfs://blablabla");
+                resturantTokens[i].safeMint(
+                    (k + 1) * 1 ether,
+                    address(erc20),
+                    reservationDate,
+                    string.concat(IPFS_METADATA_BASE, Strings.toString(i * resturantTokens.length + k))
+                );
             }
         }
         vm.stopBroadcast();
@@ -60,8 +67,8 @@ contract SetUpTestScenario is BaseScript {
         return (controller, resturantTokens);
     }
 
-    function fundControllerOwner(address controllerOwner) internal broadcast {
-        (bool sent,) = controllerOwner.call{ value: 1 ether }("");
+    function fundAddress(address funded) internal broadcast {
+        (bool sent,) = funded.call{ value: 1 ether }("");
         require(sent, "Failed to send Ether");
     }
 }
