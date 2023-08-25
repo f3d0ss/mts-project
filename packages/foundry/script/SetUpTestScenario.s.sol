@@ -14,61 +14,165 @@ import { console2 } from "forge-std/console2.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SetUpTestScenario is BaseScript {
-    uint256 constant NUMBER_OF_RESTURANT = 3;
-    uint256 constant NUMBER_OF_NFT_PER_RESTURANT = 10;
-    address constant RESTURANT_OWNER = 0x6C1b125e0D951396C0256ab083615a558C615648;
-    string constant RESTURANT_TOKEN_NAME = "Resturant";
-    string constant RESTURANT_TOKEN_SYMBOL = "RT";
-    string constant IPFS_METADATA_BASE = "ipfs://bafybeibc5sgo2plmjkq2tzmhrn54bk3crhnc23zd2msg4ea7a4pxrkgfna/";
+    uint32 constant TEN_DAYS = 10 * 60 * 60 * 24;
 
-    function run() public exportDeployments returns (MTSController, ResturantToken[NUMBER_OF_RESTURANT] memory) {
-        uint256 ownersPk = vm.envUint("MTS_OWNER");
-        address ownersAdddress = vm.addr(ownersPk);
-        fundAddress(ownersAdddress);
+    function run() public exportDeployments returns (MTSController, ResturantToken[] memory) {
+        uint256 NUMBER_OF_RESTURANT = vm.envUint("NUMBER_OF_RESTURANT");
+        uint256 NUMBER_OF_NFT_PER_RESTURANT = vm.envUint("NUMBER_OF_NFT_PER_RESTURANT");
+        address[] memory RESTURANT_OWNERS = vm.envAddress("RESTURANT_OWNERS", ",");
+        string memory BASE_RESTURANT_TOKEN_NAME = vm.envString("RESTURANT_TOKEN_NAME");
+        string memory BASE_RESTURANT_TOKEN_SYMBOL = vm.envString("RESTURANT_TOKEN_SYMBOL");
+        string memory IPFS_METADATA_BASE = vm.envString("IPFS_METADATA_BASE");
+        uint256 CONTROLLER_OWNER_PK = vm.envUint("MTS_OWNER");
+        uint256[] memory BUYERS_PKS = vm.envUint("BUYERS_PKS", ",");
+        address controllerOwnersAdddress = vm.addr(CONTROLLER_OWNER_PK);
+        fundAddress(controllerOwnersAdddress);
 
-        MTSController controller = new DeployMTSController().run(ownersAdddress);
+        MTSController controller = new DeployMTSController().run(controllerOwnersAdddress);
 
-        ResturantToken[NUMBER_OF_RESTURANT] memory resturantTokens;
-        vm.startBroadcast(ownersPk);
-        for (uint256 i = 0; i < NUMBER_OF_RESTURANT; i++) {
-            resturantTokens[i] = controller.addNewResturant(
-                RESTURANT_OWNER,
-                string.concat(RESTURANT_TOKEN_NAME, Strings.toString(i)),
-                string.concat(RESTURANT_TOKEN_SYMBOL, Strings.toString(i))
-            );
-            // vm.stopBroadcast();
-            console2.log("Owner of resturant %d: %s", i, resturantTokens[i].owner());
-            console2.log("MTSController resturants: %d", controller.getNumberOfResturants());
-        }
-        vm.stopBroadcast();
+        ResturantToken[] memory resturantTokens = addNewResturants(
+            controller,
+            CONTROLLER_OWNER_PK,
+            NUMBER_OF_RESTURANT,
+            RESTURANT_OWNERS,
+            BASE_RESTURANT_TOKEN_NAME,
+            BASE_RESTURANT_TOKEN_SYMBOL
+        );
 
         ERC20Mock erc20 = new DeployMockErc20().run();
 
         new AddAlloedTokenToController().run(address(controller), address(erc20), 1);
 
-        fundAddress(RESTURANT_OWNER);
-        vm.startBroadcast(RESTURANT_OWNER);
-        for (uint256 i = 0; i < resturantTokens.length; i++) {
-            for (uint256 k = 0; k < NUMBER_OF_NFT_PER_RESTURANT; k++) {
-                uint32 reservationDate = uint32(block.timestamp);
-                if (k % 3 != 0) {
-                    reservationDate += 10 * 60 * 60 * 24;
-                }
-                resturantTokens[i].safeMint(
-                    (k + 1) * 1 ether,
-                    address(erc20),
-                    reservationDate,
-                    string.concat(IPFS_METADATA_BASE, Strings.toString(i * resturantTokens.length + k))
-                );
-            }
+        for (uint256 i = 0; i < RESTURANT_OWNERS.length; i++) {
+            fundAddress(RESTURANT_OWNERS[i]);
         }
-        vm.stopBroadcast();
+        mintExperiencesForResturants(
+            resturantTokens, address(erc20), RESTURANT_OWNERS, NUMBER_OF_NFT_PER_RESTURANT, IPFS_METADATA_BASE
+        );
+
+        for (uint256 i = 0; i < BUYERS_PKS.length; i++) {
+            uint256 buyerPk = BUYERS_PKS[i];
+            address buyerAddress = vm.addr(buyerPk);
+            fundAddress(buyerAddress);
+            fundAddress(buyerAddress, erc20);
+            buyNftFromRestuants(resturantTokens, buyerPk);
+        }
 
         return (controller, resturantTokens);
+    }
+
+    function buyNftFromRestuants(ResturantToken[] memory resturants, uint256 buyerPk) internal {
+        for (uint256 j = 0; j < resturants.length; j++) {
+            ResturantToken resturant = resturants[j];
+            buyNftFromRestuant(resturant, buyerPk);
+        }
+    }
+
+    function buyNftFromRestuant(ResturantToken resturant, uint256 buyerPk) internal {
+        uint256 numberOfNft = resturant.getCounter();
+        for (uint256 k = buyerPk % 3; k < numberOfNft; k += 3) {
+            if (resturant.ownerOf(k) == address(resturant)) {
+                ResturantToken.NFT memory nft = resturant.getNft(k);
+                vm.startBroadcast(buyerPk);
+                ERC20Mock(nft.paymentToken).approve(address(resturant), nft.price);
+                resturant.buyNFT(k);
+                vm.stopBroadcast();
+            }
+        }
+    }
+
+    function addNewResturants(
+        MTSController controller,
+        uint256 controllerOwnerPk,
+        uint256 numberOfResturant,
+        address[] memory resturantOwners,
+        string memory baseResturantTokenName,
+        string memory baseResturantTokenSymbol
+    )
+        internal
+        returns (ResturantToken[] memory)
+    {
+        ResturantToken[] memory resturantTokens = new ResturantToken[](numberOfResturant);
+        for (uint256 i = 0; i < numberOfResturant; i++) {
+            resturantTokens[i] = addNewResturant(
+                controller,
+                controllerOwnerPk,
+                resturantOwners[i % resturantOwners.length],
+                string.concat(baseResturantTokenName, Strings.toString(i)),
+                string.concat(baseResturantTokenSymbol, Strings.toString(i))
+            );
+        }
+        return resturantTokens;
+    }
+
+    function addNewResturant(
+        MTSController controller,
+        uint256 controllerOwnerPk,
+        address resturantOwner,
+        string memory resturantTokenName,
+        string memory resturantTokenSymbol
+    )
+        internal
+        returns (ResturantToken)
+    {
+        vm.startBroadcast(controllerOwnerPk);
+        ResturantToken resturantToken =
+            controller.addNewResturant(resturantOwner, resturantTokenName, resturantTokenSymbol);
+        vm.stopBroadcast();
+        return resturantToken;
+    }
+
+    function mintExperiencesForResturants(
+        ResturantToken[] memory resturantTokens,
+        address erc20,
+        address[] memory resturantOwners,
+        uint256 numberOfNftPerResturant,
+        string memory ipfsMetadataBase
+    )
+        internal
+    {
+        for (uint256 i = 0; i < resturantTokens.length; i++) {
+            mintExperiencesForSingleResturant(
+                resturantTokens[i],
+                erc20,
+                resturantOwners[i % resturantOwners.length],
+                numberOfNftPerResturant,
+                ipfsMetadataBase
+            );
+        }
+    }
+
+    function mintExperiencesForSingleResturant(
+        ResturantToken resturant,
+        address paymentToken,
+        address resturantOwner,
+        uint256 numberOfNft,
+        string memory ipfsMetadataBase
+    )
+        internal
+    {
+        vm.startBroadcast(resturantOwner);
+        for (uint256 k = 0; k < numberOfNft; k++) {
+            uint32 reservationDate = uint32(block.timestamp);
+            if (k % 3 != 0) {
+                reservationDate += TEN_DAYS;
+            }
+            resturant.safeMint(
+                (k + 1) * 1 ether,
+                paymentToken,
+                reservationDate,
+                string.concat(ipfsMetadataBase, Strings.toString(uint160(address(resturant)) % 1000 + k))
+            );
+        }
+        vm.stopBroadcast();
     }
 
     function fundAddress(address funded) internal broadcast {
         (bool sent,) = funded.call{ value: 1 ether }("");
         require(sent, "Failed to send Ether");
+    }
+
+    function fundAddress(address funded, ERC20Mock erc20) internal broadcast {
+        erc20.mint(funded, 1000 ether);
     }
 }
