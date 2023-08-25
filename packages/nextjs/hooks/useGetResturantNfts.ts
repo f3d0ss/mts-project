@@ -81,7 +81,7 @@ export const useGetResturantNfts = ({ resturant, onlyOnSale, ownedBy }: UseGetRe
 
   const fetchedNftsTyped = fetchedNfts && fetchedNfts.map(fetchedNft => fetchedNft.result as FetchedNft);
 
-  let nfts;
+  let nfts: ResturantNft[] | undefined = [];
   if (tokenIds) {
     nfts = fetchedNftsTyped?.map<ResturantNft>((fetchedNft: FetchedNft, i) => {
       return {
