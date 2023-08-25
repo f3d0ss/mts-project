@@ -219,6 +219,10 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
         return address(s_mtsController);
     }
 
+    function getCounter() external view returns (uint256) {
+        return s_tokenIdCounter.current();
+    }
+
     function getNft(uint256 tokenId) external view returns (NFT memory) {
         return s_nfts[tokenId];
     }
