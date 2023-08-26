@@ -5,6 +5,7 @@ import {
   ledgerWallet,
   metaMaskWallet,
   rainbowWallet,
+  safeWallet,
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { configureChains } from "wagmi";
@@ -51,6 +52,7 @@ const wallets = [
   ledgerWallet(walletsOptions),
   braveWallet(walletsOptions),
   coinbaseWallet({ ...walletsOptions, appName: "scaffold-eth-2" }),
+  safeWallet(walletsOptions),
   rainbowWallet(walletsOptions),
   ...(configuredNetwork.id === chains.hardhat.id || !onlyLocalBurnerWallet
     ? [burnerWalletConfig({ chains: [appChains.chains[0]] })]
