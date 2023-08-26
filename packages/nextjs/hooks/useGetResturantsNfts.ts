@@ -101,7 +101,7 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy }: UseGet
   const fetchedNftsTyped = fetchedNfts && fetchedNfts.map(fetchedNft => fetchedNft.result as FetchedNft);
   const fetchedNftsTypedSplit = splitDataByContract(numberOfTokenPerResturant ?? [], fetchedNftsTyped ?? []);
 
-  const nfts = new Array<ResturantNft>();
+  let nfts = new Array<ResturantNft>();
   if (tokenIdsPerResturant) {
     fetchedNftsTypedSplit.forEach((fetchedNftsTyped,i) => fetchedNftsTyped.forEach((fetchedNft,k) => {
       nfts.push({
@@ -112,6 +112,7 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy }: UseGet
       });
     }));
   }
+  nfts = nfts.filter(nft => nft.id);
 
   return { nfts, isLoading: isLoadingNumberOfToken || isLoadingTokenIds || isLoadingNfts || isLoadingOwners };
 };
