@@ -7,7 +7,7 @@ import contracts from "~~/generated/usefulAbis";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { useIPFSGateway } from "~~/hooks/useIPFSGateway";
 import { NftMetadata } from "~~/types/nftMetadata";
-import { getTargetNetwork } from "~~/utils/scaffold-eth";
+import { getTargetNetwork, notification } from "~~/utils/scaffold-eth";
 
 type MintNewNftProps = {
   resturantAddress: string;
@@ -31,17 +31,22 @@ export default function MintNewNft({ resturantAddress }: MintNewNftProps) {
     functionName: "safeMint",
   });
 
-  const { uploadFile } = useIPFSGateway();
+  const { uploadFile, isOnline, isConnecting } = useIPFSGateway();
 
   async function submit() {
     if (!newImage) {
-      console.error("need an image to create a new NFT!");
+      notification.error("Need an image to create a new NFT!");
       return;
     }
-    if (!uploadFile) {
-      console.error("ipfs not yet ready");
+    if (isConnecting) {
+      notification.loading("Connecting to IPFS");
       return;
     }
+    if (!isOnline || !uploadFile) {
+      notification.error("Error connecting to IPFS");
+      return;
+    }
+
     const newImageCID = await uploadFile(newImage);
 
     const metadata: NftMetadata = {
