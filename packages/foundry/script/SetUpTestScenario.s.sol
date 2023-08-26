@@ -154,7 +154,7 @@ contract SetUpTestScenario is BaseScript {
         vm.startBroadcast(resturantOwner);
         for (uint256 k = 0; k < numberOfNft; k++) {
             uint32 reservationDate = uint32(block.timestamp);
-            if (k % 3 != 0) {
+            if (k % 2 != 0) {
                 reservationDate += TEN_DAYS;
             }
             resturant.safeMint(
