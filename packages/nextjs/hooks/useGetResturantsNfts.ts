@@ -19,7 +19,7 @@ type UseGetResturantsNftsProps = {
 export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy }: UseGetResturantsNftsProps) => {
   const functionTotalName = ownedBy ? "balanceOf" : "totalSupply";
   const argsTotal: [string] | undefined = ownedBy ? [ownedBy] : undefined;
-  
+
   console.log(argsTotal);
   const numbersOfTokensReads = resturants.map(resturant => {
     return {
@@ -29,66 +29,65 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy }: UseGet
       args: onlyOnSale ? [resturant] : argsTotal,
     };
   });
-  
-  
+
   const { data: numberOfTokenPerResturantBigInt, isLoading: isLoadingNumberOfToken } = useContractReads({
     contracts: numbersOfTokensReads,
     watch: true,
   });
-  
-  
-  const numberOfTokenPerResturant = numberOfTokenPerResturantBigInt?.map((numberOfTokenBigInt) =>
-  Number(numberOfTokenBigInt.result),
+
+  const numberOfTokenPerResturant = numberOfTokenPerResturantBigInt?.map(numberOfTokenBigInt =>
+    Number(numberOfTokenBigInt.result),
   );
 
   const functionByIndexName = ownedBy ? "tokenOfOwnerByIndex" : "tokenByIndex";
-  
-  let tokenIdsReadsPerResturant = <any>[];
-  numberOfTokenPerResturant?.forEach((numberOfTokens, i) => {
 
+  let tokenIdsReadsPerResturant: any[] = [];
+  numberOfTokenPerResturant?.forEach((numberOfTokens, i) => {
     const tokenIdsReadsPerResturantI = Array.from({ length: numberOfTokens }).map((_, k) => {
-      const argsByIndex: [string, bigint] | undefined = ownedBy ? [ownedBy,BigInt(k)] : undefined;
-      
+      const argsByIndex: [string, bigint] | undefined = ownedBy ? [ownedBy, BigInt(k)] : undefined;
+
       return {
         address: resturants[i],
         abi: contracts.ResturantToken.abi,
         functionName: functionByIndexName,
-        args: onlyOnSale ? [resturants[i] ,BigInt(k)] : argsByIndex,
+        args: onlyOnSale ? [resturants[i], BigInt(k)] : argsByIndex,
       };
     });
     tokenIdsReadsPerResturant = tokenIdsReadsPerResturant.concat(tokenIdsReadsPerResturantI);
   });
-
-
 
   const { data: tokenIdsPerResturant, isLoading: isLoadingTokenIds } = useContractReads({
     contracts: tokenIdsReadsPerResturant,
     watch: true,
   });
 
-  const tokenIdsPerResturantTyped = tokenIdsPerResturant && tokenIdsPerResturant.map(tokenIdData => tokenIdData.result as bigint);
-  console.log({tokenIdsPerResturantTyped});
+  const tokenIdsPerResturantTyped =
+    tokenIdsPerResturant && tokenIdsPerResturant.map(tokenIdData => tokenIdData.result as bigint);
+  console.log({ tokenIdsPerResturantTyped });
 
-  const tokenIdsPerResturantSliced = splitDataByContract(numberOfTokenPerResturant ?? [], tokenIdsPerResturantTyped ?? []);
+  const tokenIdsPerResturantSliced = splitDataByContract(
+    numberOfTokenPerResturant ?? [],
+    tokenIdsPerResturantTyped ?? [],
+  );
 
-
-  const getNftReads = <any>[];
-  const getOwnerReads = <any>[];
-  tokenIdsPerResturantSliced?.forEach((resturantTokenIds,i) => resturantTokenIds.forEach(resturantTokenId => {
-    getNftReads.push({
-      address: resturants[i],
-      abi: contracts.ResturantToken.abi,
-      functionName: "getNft",
-      args: [resturantTokenId],
-    });
-    getOwnerReads.push({
-      address: resturants[i],
-      abi: contracts.ResturantToken.abi,
-      functionName: "ownerOf",
-      args: [resturantTokenId],
-    });
-  }));
-
+  const getNftReads: any[] = [];
+  const getOwnerReads: any[] = [];
+  tokenIdsPerResturantSliced?.forEach((resturantTokenIds, i) =>
+    resturantTokenIds.forEach(resturantTokenId => {
+      getNftReads.push({
+        address: resturants[i],
+        abi: contracts.ResturantToken.abi,
+        functionName: "getNft",
+        args: [resturantTokenId],
+      });
+      getOwnerReads.push({
+        address: resturants[i],
+        abi: contracts.ResturantToken.abi,
+        functionName: "ownerOf",
+        args: [resturantTokenId],
+      });
+    }),
+  );
 
   const { data: fetchedNfts, isLoading: isLoadingNfts } = useContractReads({ contracts: getNftReads, watch: true });
   const { data: nftOwners, isLoading: isLoadingOwners } = useContractReads({
@@ -101,22 +100,22 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy }: UseGet
   const fetchedNftsTyped = fetchedNfts && fetchedNfts.map(fetchedNft => fetchedNft.result as FetchedNft);
   const fetchedNftsTypedSplit = splitDataByContract(numberOfTokenPerResturant ?? [], fetchedNftsTyped ?? []);
 
-  let nfts = new Array<ResturantNft>();
+  const nfts = new Array<ResturantNft>();
   if (tokenIdsPerResturant) {
-    fetchedNftsTypedSplit.forEach((fetchedNftsTyped,i) => fetchedNftsTyped.forEach((fetchedNft,k) => {
-      nfts.push({
-        ...fetchedNft,
-        resturant: resturants[i],
-        id: tokenIdsPerResturantSliced[i][k],
-        owner: nftOwnersTypedSplit[i][k],
-      });
-    }));
+    fetchedNftsTypedSplit.forEach((fetchedNftsTyped, i) =>
+      fetchedNftsTyped.forEach((fetchedNft, k) => {
+        nfts.push({
+          ...fetchedNft,
+          resturant: resturants[i],
+          id: tokenIdsPerResturantSliced[i][k],
+          owner: nftOwnersTypedSplit[i][k],
+        });
+      }),
+    );
   }
-  nfts = nfts.filter(nft => nft.id);
 
   return { nfts, isLoading: isLoadingNumberOfToken || isLoadingTokenIds || isLoadingNfts || isLoadingOwners };
 };
-
 
 function splitDataByContract<T>(tokenCounts: number[], tokenIds: T[]): T[][] {
   const result: T[][] = [];
