@@ -35,7 +35,7 @@ const Home: NextPage = () => {
           <div className="flex items-center flex-col pt-10 w-full">
             <span>{isSafe ? "Is a Safe" : "Not a Safe"}</span>
           </div>
-          <div className="col-span-5 grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10">
+          <div className="col-span-5 grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-10 w-full px-10">
             <ControllerInfo
               controllerName={CONTROLLER_CONTRACT_NAME}
               controllerAddress={controllerContractData.address}
