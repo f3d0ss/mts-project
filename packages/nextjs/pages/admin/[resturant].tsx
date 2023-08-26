@@ -31,7 +31,7 @@ const ResturantAdminPage: NextPage = dynamic(
                   <ResturantInfo resturantAddress={resturant} />
                   <div className="col-span-1 h-12 text-center font-bold">Mint</div>
                   <MintNewNft resturantAddress={resturant} />
-                  <div className="col-span-1 h-12 text-center font-bold">Consume</div>
+                  <div className="col-span-1 h-12 text-center font-bold">Accept NFT</div>
                   <AcceptUserNft resturantAddress={resturant} />
                 </div>
               </div>
