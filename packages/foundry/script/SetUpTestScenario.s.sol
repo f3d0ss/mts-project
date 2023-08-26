@@ -167,8 +167,14 @@ contract SetUpTestScenario is BaseScript {
         vm.stopBroadcast();
     }
 
-    function fundAddress(address funded) internal broadcast {
-        (bool sent,) = funded.call{ value: 1 ether }("");
+    function fundAddress(address funded) internal {
+        if (broadcaster != funded) {
+            _fundAddress(funded);
+        }
+    }
+
+    function _fundAddress(address funded) internal broadcast {
+        (bool sent,) = funded.call{ value: 0.1 ether }("");
         require(sent, "Failed to send Ether");
     }
 
