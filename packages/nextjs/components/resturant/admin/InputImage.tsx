@@ -26,10 +26,12 @@ export const InputImage = ({ onChange }: InputImageProps) => {
   };
 
   return (
-    <div className="flex flex-row  items-center">
+    <div className="flex flex-col items-center">
       <label
         htmlFor="picture"
-        className="btn btn-primary rounded-full capitalize font-normal font-white w-24 flex items-center gap-1 hover:gap-2 transition-all tracking-widest "
+        className={`btn btn-primary rounded-full capitalize font-normal font-white flex items-center gap-1 hover:gap-2 transition-all tracking-widest ${
+          image && "text-xs min-h-0 h-8"
+        }`}
       >
         {image ? "Change picture" : "Choose a picture"}
       </label>
