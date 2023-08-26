@@ -5,12 +5,17 @@ import { ResturantNft } from "~~/types/resturantNft";
 
 type AdminNftPreviewProps = {
   nft: ResturantNft;
+  showOwner?: boolean;
 };
 
-export default function AdminNftPreview({ nft }: AdminNftPreviewProps) {
+export default function AdminNftPreview({ nft, showOwner }: AdminNftPreviewProps) {
   return (
     <div>
-      <NftPreview nft={nft} buttons={nft => [<AdminNftButton nft={nft} key={nft.id.toString()} />]} />
+      <NftPreview
+        nft={nft}
+        showOwner={showOwner}
+        buttons={nft => [<AdminNftButton nft={nft} key={nft.id.toString()} />]}
+      />
     </div>
   );
 }

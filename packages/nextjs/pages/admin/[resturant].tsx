@@ -53,7 +53,7 @@ const ResturantAdminPage: NextPage = dynamic(
                   .filter(nft => nft.id)
                   .sort((nftA, nftB) => nftA.reservationDate - nftB.reservationDate)
                   .map(nft => (
-                    <AdminNftPreview nft={nft} key={nft.id.toString()} />
+                    <AdminNftPreview nft={nft} showOwner={true} key={nft.id.toString()} />
                   ))}
               </div>
               <div className="col-span-1"></div>

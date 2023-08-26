@@ -12,9 +12,10 @@ import { getDateFromTimestamp } from "~~/utils/scaffold-eth/getDate";
 type NftPreviewProps = {
   nft: ResturantNft;
   buttons: (nft: ResturantNft) => ReactNode[];
+  showOwner?: boolean;
 };
 
-export default function NftPreview({ nft, buttons }: NftPreviewProps) {
+export default function NftPreview({ nft, buttons, showOwner }: NftPreviewProps) {
   const { isOnline, isConnecting, getFile } = useIPFSGateway();
   const [metadata, setMetadata] = useState<NftMetadata | undefined>();
   const [image, setImage] = useState<string | undefined>();
@@ -51,14 +52,13 @@ export default function NftPreview({ nft, buttons }: NftPreviewProps) {
         <div className="py-2">
           <ResturantName resturantAddress={nft.resturant} />
         </div>
-        {/* ONLY FOR DEBUG */}
-        <div className="py-2">
+
+        <div className="py-2 hidden">
           <span className="font-bold">Id</span>: {nft ? nft.id.toString() : <Spinner />}
         </div>
-        <div className="py-2">
+        <div className={`py-2 ${!showOwner && "hidden"}`}>
           <span className="font-bold">Owner</span>: {nft ? <Address address={nft.owner} /> : <Spinner />}
         </div>
-        {/* ONLY FOR DEBUG */}
 
         <div className="py-2">
           <span className="font-bold">Date</span>:{" "}
