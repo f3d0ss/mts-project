@@ -6,11 +6,13 @@ import { useContractRead } from "wagmi";
 import { Spinner } from "~~/components/Spinner";
 import contracts from "~~/generated/usefulAbis";
 import { ResturantNft } from "~~/types/resturantNft";
+import { EXPIRATION_RANGE } from "~~/utils/constats";
 import { getDateFromTimestamp } from "~~/utils/scaffold-eth/getDate";
 
 type AdminNftButtonProps = {
   nft: ResturantNft;
 };
+
 export default function AdminNftButton({ nft }: AdminNftButtonProps) {
   const { data: owner } = useContractRead({
     address: nft.resturant,
@@ -27,7 +29,7 @@ export default function AdminNftButton({ nft }: AdminNftButtonProps) {
     return <AdminBurnButton nft={nft} />;
   }
 
-  if (getDateFromTimestamp(nft.reservationDate).getTime() < Date.now()) {
+  if (getDateFromTimestamp(nft.reservationDate).getTime() + EXPIRATION_RANGE < Date.now()) {
     return <AdminConsumeButton nft={nft} />;
   }
 
