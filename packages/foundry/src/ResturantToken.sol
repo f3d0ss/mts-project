@@ -39,7 +39,7 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
         string uri;
     }
 
-    uint256 public constant EXPIRATION_RANGE = 24 * 60;
+    uint256 public constant EXPIRATION_RANGE = 24 * 60 * 60; // one day
 
     Counters.Counter private s_tokenIdCounter;
 
