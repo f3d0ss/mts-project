@@ -4,6 +4,7 @@ import { IPFSHTTPClient, create } from "kubo-rpc-client";
 export const useIPFSGateway = () => {
   const [ipfsHttpClient, setIpfsHttpClient] = useState<IPFSHTTPClient>();
   const [isOnline, setIsOnline] = useState<boolean>(false);
+  const [isConnecting, setIsConnecting] = useState<boolean>(true);
 
   useEffect(() => {
     const init = async () => {
@@ -12,8 +13,15 @@ export const useIPFSGateway = () => {
       const client = create({ url: "http://127.0.0.1:5001" });
 
       setIpfsHttpClient(client);
-      // isOnline return a Promise even, not typed correctly
-      setIsOnline(await client.isOnline());
+      try {
+        // isOnline return a Promise, not typed correctly
+        setIsOnline(await client.isOnline());
+        setIsConnecting(false);
+      } catch (e) {
+        console.error(e);
+        setIsOnline(false);
+        setIsConnecting(false);
+      }
     };
 
     init();
@@ -42,6 +50,7 @@ export const useIPFSGateway = () => {
     : undefined;
   return {
     isOnline,
+    isConnecting,
     uploadFile,
     getFile,
   };
