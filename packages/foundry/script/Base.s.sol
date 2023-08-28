@@ -58,6 +58,8 @@ abstract contract BaseScript is Script {
     /*                          FROM SCAFFOLD-ETH-FOUDRY                          */
     /* ========================================================================== */
 
+    error InvalidChain();
+
     struct Deployment {
         string name;
         address addr;
@@ -83,8 +85,33 @@ abstract contract BaseScript is Script {
             vm.serializeString(jsonWrite, vm.toString(deployments[i].addr), deployments[i].name);
         }
 
-        Chain memory chain = getChain(block.chainid);
-        jsonWrite = vm.serializeString(jsonWrite, "networkName", chain.name);
+        string memory chainName;
+
+        try this.getChain() returns (Chain memory chain) {
+            chainName = chain.name;
+        } catch {
+            chainName = findChainName();
+        }
+        jsonWrite = vm.serializeString(jsonWrite, "networkName", chainName);
         vm.writeJson(jsonWrite, path);
+    }
+
+    function getChain() public returns (Chain memory) {
+        return getChain(block.chainid);
+    }
+
+    function findChainName() public returns (string memory) {
+        uint256 thisChainId = block.chainid;
+        string[2][] memory allRpcUrls = vm.rpcUrls();
+        for (uint256 i = 0; i < allRpcUrls.length; i++) {
+            try vm.createSelectFork(allRpcUrls[i][1]) {
+                if (block.chainid == thisChainId) {
+                    return allRpcUrls[i][0];
+                }
+            } catch {
+                continue;
+            }
+        }
+        revert InvalidChain();
     }
 }
