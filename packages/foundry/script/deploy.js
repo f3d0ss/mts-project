@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var readline = require("readline");
 var child_process = require("child_process");
 var dotenv = require("dotenv");
-var generateTsAbis_js_1 = require("./generateTsAbis.js");
+var generateTsAbis_js_1 = require("./utils/generateTsAbis.js");
 dotenv.config(); // Load environment variables from .env file
 var rl = readline.createInterface({
     input: process.stdin,
@@ -67,17 +67,18 @@ function askQuestion(question) {
         });
     });
 }
-function deployTestScenario(network) {
+function deployTestScenario(network, verify) {
     return __awaiter(this, void 0, void 0, function () {
         var command;
         return __generator(this, function (_a) {
-            command = "forge script script/SetUpTestScenario.s.sol --broadcast --rpc-url ".concat(network);
+            command = "forge script script/SetUpTestScenario.s.sol --broadcast --rpc-url ".concat(network, " ").concat(verify ? "--verify" : "");
+            console.log(command);
             executeCommand(command);
             return [2 /*return*/];
         });
     });
 }
-function deploySafe(network) {
+function deploySafe(network, verify) {
     return __awaiter(this, void 0, void 0, function () {
         var addressesStr, thresholdStr, addresses, threshold, command;
         return __generator(this, function (_a) {
@@ -90,14 +91,14 @@ function deploySafe(network) {
                     thresholdStr = _a.sent();
                     addresses = addressesStr.split(",").map(function (addr) { return addr.trim(); });
                     threshold = parseInt(thresholdStr.trim(), 10);
-                    command = "forge script script/DeploySafe.s.sol --broadcast --sig \"run(address[],uint256)\" \"[".concat(addresses.join(","), "]\" ").concat(threshold, " --rpc-url ").concat(network);
+                    command = "forge script script/DeploySafe.s.sol --broadcast --sig \"run(address[],uint256)\" \"[".concat(addresses.join(","), "]\" ").concat(threshold, " --rpc-url ").concat(network, " ").concat(verify ? "--verify" : "");
                     executeCommand(command);
                     return [2 /*return*/];
             }
         });
     });
 }
-function deployMTSController(network) {
+function deployMTSController(network, verify) {
     return __awaiter(this, void 0, void 0, function () {
         var ownerAddress, command;
         return __generator(this, function (_a) {
@@ -105,14 +106,14 @@ function deployMTSController(network) {
                 case 0: return [4 /*yield*/, askQuestion("Please enter the OWNER_ADDRESS: ")];
                 case 1:
                     ownerAddress = _a.sent();
-                    command = "forge script script/DeployMTSController.s.sol --broadcast --sig \"run(address)\" ".concat(ownerAddress, " --rpc-url ").concat(network);
+                    command = "forge script script/DeployMTSController.s.sol --broadcast --sig \"run(address)\" ".concat(ownerAddress, " --rpc-url ").concat(network, " ").concat(verify ? "--verify" : "");
                     executeCommand(command);
                     return [2 /*return*/];
             }
         });
     });
 }
-function deployMTSControllerWithRestaurant(network) {
+function deployMTSControllerWithRestaurant(network, verify) {
     return __awaiter(this, void 0, void 0, function () {
         var restaurantOwner, tokenName, tokenSymbol, command;
         return __generator(this, function (_a) {
@@ -132,14 +133,14 @@ function deployMTSControllerWithRestaurant(network) {
                     return [4 /*yield*/, askQuestion("Please enter the RESTAURANT_TOKEN_SYMBOL: ")];
                 case 3:
                     tokenSymbol = _a.sent();
-                    command = "forge script script/DeployMinimalScenarioWithPkOwner.s.sol --broadcast --sig \"run(address,string,string)\" ".concat(restaurantOwner, " \"").concat(tokenName, "\" \"").concat(tokenSymbol, "\" --rpc-url ").concat(network);
+                    command = "forge script script/DeployMinimalScenarioWithPkOwner.s.sol --broadcast --sig \"run(address,string,string)\" ".concat(restaurantOwner, " \"").concat(tokenName, "\" \"").concat(tokenSymbol, "\" --rpc-url ").concat(network, " ").concat(verify ? "--verify" : "");
                     executeCommand(command);
                     return [2 /*return*/];
             }
         });
     });
 }
-function deploySafeMTSControllerResturant(network) {
+function deploySafeMTSControllerResturant(network, verify) {
     return __awaiter(this, void 0, void 0, function () {
         var thresholdStr, restaurantOwner, tokenName, tokenSymbol, threshold, command;
         return __generator(this, function (_a) {
@@ -163,14 +164,14 @@ function deploySafeMTSControllerResturant(network) {
                 case 4:
                     tokenSymbol = _a.sent();
                     threshold = parseInt(thresholdStr.trim(), 10);
-                    command = "forge script script/DeployMinimalScenarioWithSafeOwner.s.sol --broadcast --sig \"run(uint256,address,string,string)\" ".concat(threshold, " ").concat(restaurantOwner, " \"").concat(tokenName, "\" \"").concat(tokenSymbol, "\" --rpc-url ").concat(network);
+                    command = "forge script script/DeployMinimalScenarioWithSafeOwner.s.sol --broadcast --sig \"run(uint256,address,string,string)\" ".concat(threshold, " ").concat(restaurantOwner, " \"").concat(tokenName, "\" \"").concat(tokenSymbol, "\" --rpc-url ").concat(network, " ").concat(verify ? "--verify" : "");
                     executeCommand(command);
                     return [2 /*return*/];
             }
         });
     });
 }
-function deployAResturantWithEOA(network) {
+function deployAResturantWithEOA(network, verify) {
     return __awaiter(this, void 0, void 0, function () {
         var controllerAddress, restaurantOwner, tokenName, tokenSymbol, command;
         return __generator(this, function (_a) {
@@ -193,14 +194,14 @@ function deployAResturantWithEOA(network) {
                     return [4 /*yield*/, askQuestion("Please enter the RESTAURANT_TOKEN_SYMBOL: ")];
                 case 4:
                     tokenSymbol = _a.sent();
-                    command = "forge script script/DeployResturantWithPkOwner.s.sol --broadcast --sig \"run(address,address,string,string)\" ".concat(controllerAddress, " ").concat(restaurantOwner, " \"").concat(tokenName, "\" \"").concat(tokenSymbol, "\" --rpc-url ").concat(network);
+                    command = "forge script script/DeployResturantWithPkOwner.s.sol --broadcast --sig \"run(address,address,string,string)\" ".concat(controllerAddress, " ").concat(restaurantOwner, " \"").concat(tokenName, "\" \"").concat(tokenSymbol, "\" --rpc-url ").concat(network, " ").concat(verify ? "--verify" : "");
                     executeCommand(command);
                     return [2 /*return*/];
             }
         });
     });
 }
-function deployAResturantWithSafe(network) {
+function deployAResturantWithSafe(network, verify) {
     return __awaiter(this, void 0, void 0, function () {
         var controllerAddress, safeAddress, restaurantOwner, tokenName, tokenSymbol, command;
         return __generator(this, function (_a) {
@@ -226,18 +227,18 @@ function deployAResturantWithSafe(network) {
                     return [4 /*yield*/, askQuestion("Please enter the RESTAURANT_TOKEN_SYMBOL: ")];
                 case 5:
                     tokenSymbol = _a.sent();
-                    command = "forge script script/DeployResturantWithSafeOwner.s.sol --broadcast --sig \"run(address,string,string,address,address)\" ".concat(restaurantOwner, " \"").concat(tokenName, "\" \"").concat(tokenSymbol, "\" ").concat(controllerAddress, " ").concat(safeAddress, " --rpc-url ").concat(network);
+                    command = "forge script script/DeployResturantWithSafeOwner.s.sol --broadcast --sig \"run(address,string,string,address,address)\" ".concat(restaurantOwner, " \"").concat(tokenName, "\" \"").concat(tokenSymbol, "\" ").concat(controllerAddress, " ").concat(safeAddress, " --rpc-url ").concat(network, " ").concat(verify ? "--verify" : "");
                     executeCommand(command);
                     return [2 /*return*/];
             }
         });
     });
 }
-function deployAMockERC20(network) {
+function deployAMockERC20(network, verify) {
     return __awaiter(this, void 0, void 0, function () {
         var command;
         return __generator(this, function (_a) {
-            command = "forge script script/DeployMockErc20.s.sol --broadcast --rpc-url ".concat(network);
+            command = "forge script script/DeployMockErc20.s.sol --broadcast --rpc-url ".concat(network, " ").concat(verify ? "--verify" : "");
             executeCommand(command);
             return [2 /*return*/];
         });
@@ -245,7 +246,7 @@ function deployAMockERC20(network) {
 }
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var networkChoice, network, deployChoice, choice, _a;
+        var networkChoice, network, scenarioChoice, scenario, verifyChoice, verify, _a;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, askQuestion("Enter the network you want to deploy on (default: localhost): ")];
@@ -263,64 +264,68 @@ function main() {
                     console.log("7) A Mock ERC20 token");
                     return [4 /*yield*/, askQuestion("Enter your choice (0/1/2/3/4/5/6/7) (default: 0): ")];
                 case 2:
-                    deployChoice = _b.sent();
-                    choice = deployChoice.trim() || "0";
-                    _a = choice;
+                    scenarioChoice = _b.sent();
+                    scenario = scenarioChoice.trim() || "0";
+                    return [4 /*yield*/, askQuestion("Do you want to verify the contracts? (y/N): ")];
+                case 3:
+                    verifyChoice = _b.sent();
+                    verify = /^y(es)?$/i.test(verifyChoice.trim());
+                    _a = scenario;
                     switch (_a) {
-                        case "0": return [3 /*break*/, 3];
-                        case "1": return [3 /*break*/, 5];
-                        case "2": return [3 /*break*/, 7];
-                        case "3": return [3 /*break*/, 9];
-                        case "4": return [3 /*break*/, 11];
-                        case "5": return [3 /*break*/, 13];
-                        case "6": return [3 /*break*/, 15];
-                        case "7": return [3 /*break*/, 17];
+                        case "0": return [3 /*break*/, 4];
+                        case "1": return [3 /*break*/, 6];
+                        case "2": return [3 /*break*/, 8];
+                        case "3": return [3 /*break*/, 10];
+                        case "4": return [3 /*break*/, 12];
+                        case "5": return [3 /*break*/, 14];
+                        case "6": return [3 /*break*/, 16];
+                        case "7": return [3 /*break*/, 18];
                     }
-                    return [3 /*break*/, 19];
-                case 3: return [4 /*yield*/, deployTestScenario(network)];
-                case 4:
+                    return [3 /*break*/, 20];
+                case 4: return [4 /*yield*/, deployTestScenario(network, verify)];
+                case 5:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("SetUpTestScenario.s.sol", true);
-                    return [3 /*break*/, 20];
-                case 5: return [4 /*yield*/, deploySafe(network)];
-                case 6:
+                    return [3 /*break*/, 21];
+                case 6: return [4 /*yield*/, deploySafe(network, verify)];
+                case 7:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeploySafe.s.sol", false);
-                    return [3 /*break*/, 20];
-                case 7: return [4 /*yield*/, deployMTSController(network)];
-                case 8:
+                    return [3 /*break*/, 21];
+                case 8: return [4 /*yield*/, deployMTSController(network, verify)];
+                case 9:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMTSController.s.sol", true);
-                    return [3 /*break*/, 20];
-                case 9: return [4 /*yield*/, deployMTSControllerWithRestaurant(network)];
-                case 10:
+                    return [3 /*break*/, 21];
+                case 10: return [4 /*yield*/, deployMTSControllerWithRestaurant(network, verify)];
+                case 11:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMinimalScenarioWithPkOwner.s.sol", true);
-                    return [3 /*break*/, 20];
-                case 11: return [4 /*yield*/, deploySafeMTSControllerResturant(network)];
-                case 12:
+                    return [3 /*break*/, 21];
+                case 12: return [4 /*yield*/, deploySafeMTSControllerResturant(network, verify)];
+                case 13:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMinimalScenarioWithSafeOwner.s.sol", true);
-                    return [3 /*break*/, 20];
-                case 13: return [4 /*yield*/, deployAResturantWithEOA(network)];
-                case 14:
+                    return [3 /*break*/, 21];
+                case 14: return [4 /*yield*/, deployAResturantWithEOA(network, verify)];
+                case 15:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployResturantWithPkOwner.s.sol", false);
-                    return [3 /*break*/, 20];
-                case 15: return [4 /*yield*/, deployAResturantWithSafe(network)];
-                case 16:
+                    return [3 /*break*/, 21];
+                case 16: return [4 /*yield*/, deployAResturantWithSafe(network, verify)];
+                case 17:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployResturantWithSafeOwner.s.sol", false);
-                    return [3 /*break*/, 20];
-                case 17: return [4 /*yield*/, deployAMockERC20(network)];
-                case 18:
+                    return [3 /*break*/, 21];
+                case 18: return [4 /*yield*/, deployAMockERC20(network, verify)];
+                case 19:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMockErc20.s.sol", false);
-                    return [3 /*break*/, 20];
-                case 19:
-                    console.log("Invalid choice. Exiting...");
-                    return [3 /*break*/, 20];
+                    return [3 /*break*/, 21];
                 case 20:
+                    console.log("Invalid choice. Exiting...");
+                    return [3 /*break*/, 21];
+                case 21:
                     rl.close();
                     return [2 /*return*/];
             }
