@@ -38,8 +38,8 @@ export default function NftPreview({ nft, buttons, showOwner }: NftPreviewProps)
   }, [getFile, metadata, nft.uri, isOnline]);
 
   return (
-    <div className="col-span-1 bg-base-100 border-base-300 border shadow-md shadow-secondary rounded-3xl aspect-w-13">
-      <div className="w-full aspect-square bg-base-300">
+    <div className="col-span-1 bg-base-100 border-base-300 border shadow-md shadow-secondary rounded-3xl rounded-t-md aspect-w-13">
+      <div className="w-full aspect-square bg-base-300 rounded-t-md">
         {image ? (
           <Image alt="Image" src={image} width="0" height="0" sizes="100vw" className="w-full h-auto rounded-t-md" />
         ) : isConnecting ? (
