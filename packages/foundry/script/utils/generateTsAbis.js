@@ -20,6 +20,7 @@ function getAbiOfContract(contractName) {
   const current_path_to_artifacts = path.join(
     __dirname,
     "..",
+    "..",
     `out/${contractName}.sol`
   );
   const artifactJson = JSON.parse(
@@ -52,10 +53,16 @@ function generateTsAbis(scriptName, clearAllContracts) {
   const current_path_to_broadcast = path.join(
     __dirname,
     "..",
+    "..",
     "broadcast",
     scriptName
   );
-  const current_path_to_deployments = path.join(__dirname, "..", "deployments");
+  const current_path_to_deployments = path.join(
+    __dirname,
+    "..",
+    "..",
+    "deployments"
+  );
 
   const chains = getDirectories(current_path_to_broadcast);
   const Deploymentchains = getFiles(current_path_to_deployments);

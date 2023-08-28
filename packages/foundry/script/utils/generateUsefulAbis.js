@@ -9,6 +9,7 @@ function getAbiOfContract(contractName) {
   const current_path_to_artifacts = path.join(
     __dirname,
     "..",
+    "..",
     `out/${contractName}.sol`
   );
   const artifactJson = JSON.parse(

@@ -1,4 +1,4 @@
-const { generateTsAbis } = require("./generateTsAbis.js");
+const { generateTsAbis } = require("./utils/generateTsAbis.js");
 
 try {
   scriptName = "SetUpTestScenario.s.sol";

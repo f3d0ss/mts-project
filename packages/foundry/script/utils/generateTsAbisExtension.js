@@ -9,6 +9,7 @@ function getContractBytecode(contract) {
   const current_path_to_out = path.join(
     __dirname,
     "..",
+    "..",
     "out",
     `${contract}.sol`
   );

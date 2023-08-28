@@ -1,4 +1,4 @@
-const { generateUsefulAbis } = require("./generateUsefulAbis.js");
+const { generateUsefulAbis } = require("./utils/generateUsefulAbis.js");
 
 try {
   generateUsefulAbis();
