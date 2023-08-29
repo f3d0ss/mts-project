@@ -15,7 +15,7 @@ const MyNfts: NextPage = dynamic(
       const { address } = useAccount();
       console.log({ address });
       const resturantAddresses = [...resturants].map(resturant => resturant.address);
-      const { nfts } = useGetResturantsNfts({ resturants: resturantAddresses, ownedBy: address });
+      const { nfts } = useGetResturantsNfts({ resturants: resturantAddresses, ownedBy: address, watch: true });
 
       return (
         <>

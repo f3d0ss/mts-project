@@ -14,9 +14,10 @@ type UseGetResturantsNftsProps = {
   resturants: string[];
   ownedBy?: string;
   onlyOnSale?: boolean;
+  watch?: boolean;
 };
 
-export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy }: UseGetResturantsNftsProps) => {
+export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy, watch }: UseGetResturantsNftsProps) => {
   const functionTotalName = ownedBy ? "balanceOf" : "totalSupply";
   const argsTotal: [string] | undefined = ownedBy ? [ownedBy] : undefined;
 
@@ -32,7 +33,7 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy }: UseGet
 
   const { data: numberOfTokenPerResturantBigInt, isLoading: isLoadingNumberOfToken } = useContractReads({
     contracts: numbersOfTokensReads,
-    watch: true,
+    watch,
   });
 
   const numberOfTokenPerResturant = numberOfTokenPerResturantBigInt?.map(numberOfTokenBigInt =>
@@ -58,7 +59,7 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy }: UseGet
 
   const { data: tokenIdsPerResturant, isLoading: isLoadingTokenIds } = useContractReads({
     contracts: tokenIdsReadsPerResturant,
-    watch: true,
+    watch,
   });
 
   const tokenIdsPerResturantTyped =
@@ -89,10 +90,10 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy }: UseGet
     }),
   );
 
-  const { data: fetchedNfts, isLoading: isLoadingNfts } = useContractReads({ contracts: getNftReads, watch: true });
+  const { data: fetchedNfts, isLoading: isLoadingNfts } = useContractReads({ contracts: getNftReads, watch });
   const { data: nftOwners, isLoading: isLoadingOwners } = useContractReads({
     contracts: getOwnerReads,
-    watch: true,
+    watch,
   });
   const nftOwnersTyped = nftOwners && nftOwners.map(nftOwnerData => nftOwnerData.result as string);
   const nftOwnersTypedSplit = splitDataByContract(numberOfTokenPerResturant ?? [], nftOwnersTyped ?? []);
