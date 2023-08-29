@@ -36,6 +36,7 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
         address paymentToken;
         uint32 reservationDate;
         bool locked;
+        string reviewUri;
         string uri;
     }
 
@@ -47,14 +48,18 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
 
     IMTSController private s_mtsController;
 
+    event ReviewPosted(uint256 indexed tokenId, string reviewURI);
+
     error ResturantToken__PriceNotAcceptable();
     error ResturantToken__TokenNotForSale();
     error ResturantToken__TransferFailed();
     error ResturantToken__InvalidSignatureFromClient();
     error ResturantToken__TokenNotSold();
     error ResturantToken__TokenAlreadyUsed();
+    error ResturantToken__TokenNotUsed();
     error ResturantToken__SenderIsNotTheController();
     error ResturantToken__TokenNotYetBurnable();
+    error ResturantToken__SenderIsNotNftOwner();
 
     modifier onlyConrtoller() {
         if (msg.sender != address(s_mtsController)) {
@@ -80,6 +85,20 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
     modifier isNotUsed(uint256 tokenId) {
         if (s_nfts[tokenId].locked == true) {
             revert ResturantToken__TokenAlreadyUsed();
+        }
+        _;
+    }
+
+    modifier isUsed(uint256 tokenId) {
+        if (s_nfts[tokenId].locked == false) {
+            revert ResturantToken__TokenNotUsed();
+        }
+        _;
+    }
+
+    modifier isNftOwner(uint256 tokenId, address owner) {
+        if (ownerOf(tokenId) != owner) {
+            revert ResturantToken__SenderIsNotNftOwner();
         }
         _;
     }
@@ -112,8 +131,14 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
         uint256 tokenId = s_tokenIdCounter.current();
         s_tokenIdCounter.increment();
         _safeMint(address(this), tokenId);
-        s_nfts[tokenId] =
-            NFT({ price: price, paymentToken: paymentToken, reservationDate: reservationDate, locked: false, uri: uri });
+        s_nfts[tokenId] = NFT({
+            price: price,
+            paymentToken: paymentToken,
+            reservationDate: reservationDate,
+            locked: false,
+            uri: uri,
+            reviewUri: ""
+        });
     }
 
     function buyNFT(uint256 tokenId) external payable isForSale(tokenId) {
@@ -146,6 +171,22 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
         payoutToken(tokenId);
         // Maybe lock NFT and stop
         s_nfts[tokenId].locked = true;
+    }
+
+    /**
+     *
+     * @notice reviews can be change by resubmitting
+     */
+    function sendReview(
+        uint256 tokenId,
+        string calldata uri
+    )
+        external
+        isUsed(tokenId)
+        isNftOwner(tokenId, msg.sender)
+    {
+        s_nfts[tokenId].reviewUri = uri;
+        emit ReviewPosted(tokenId, uri);
     }
 
     function burnNftNotSold(uint256 tokenId) external onlyOwner isForSale(tokenId) {
