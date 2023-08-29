@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import GetUserNftTicket from "./GetUserNftTicket";
 import { useContractWrite } from "wagmi";
-import { Address } from "~~/components/scaffold-eth";
 import contracts from "~~/generated/usefulAbis";
 import { useTransactor } from "~~/hooks/scaffold-eth";
 import { FetchedNft } from "~~/types/fetchedNft";
@@ -57,7 +56,8 @@ export default function AcceptUserNft({ resturantAddress }: AcceptUserNftProps) 
             <span className="font-bold">Id</span>: {nfTicket.id.toString()}
           </div>
           <div className="py-2">
-            <span className="font-bold">Signature</span>: <Address address={nfTicket.signature} />
+            <span className="font-bold">Signature</span>: {nfTicket.signature.slice(0, 5)}...
+            {nfTicket.signature.slice(-4)}
           </div>
           <div className="flex justify-between gap-2">
             <div
