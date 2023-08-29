@@ -246,7 +246,7 @@ function deployAMockERC20(network, verify) {
 }
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var networkChoice, network, scenarioChoice, scenario, verifyChoice, verify, _a;
+        var networkChoice, network, scenarioChoice, scenario, verify, verifyChoice, _a;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, askQuestion("Enter the network you want to deploy on (default: localhost): ")];
@@ -266,66 +266,70 @@ function main() {
                 case 2:
                     scenarioChoice = _b.sent();
                     scenario = scenarioChoice.trim() || "0";
+                    verify = false;
+                    if (!(network !== "localhost")) return [3 /*break*/, 4];
                     return [4 /*yield*/, askQuestion("Do you want to verify the contracts? (y/N): ")];
                 case 3:
                     verifyChoice = _b.sent();
                     verify = /^y(es)?$/i.test(verifyChoice.trim());
+                    _b.label = 4;
+                case 4:
                     _a = scenario;
                     switch (_a) {
-                        case "0": return [3 /*break*/, 4];
-                        case "1": return [3 /*break*/, 6];
-                        case "2": return [3 /*break*/, 8];
-                        case "3": return [3 /*break*/, 10];
-                        case "4": return [3 /*break*/, 12];
-                        case "5": return [3 /*break*/, 14];
-                        case "6": return [3 /*break*/, 16];
-                        case "7": return [3 /*break*/, 18];
+                        case "0": return [3 /*break*/, 5];
+                        case "1": return [3 /*break*/, 7];
+                        case "2": return [3 /*break*/, 9];
+                        case "3": return [3 /*break*/, 11];
+                        case "4": return [3 /*break*/, 13];
+                        case "5": return [3 /*break*/, 15];
+                        case "6": return [3 /*break*/, 17];
+                        case "7": return [3 /*break*/, 19];
                     }
-                    return [3 /*break*/, 20];
-                case 4: return [4 /*yield*/, deployTestScenario(network, verify)];
-                case 5:
+                    return [3 /*break*/, 21];
+                case 5: return [4 /*yield*/, deployTestScenario(network, verify)];
+                case 6:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("SetUpTestScenario.s.sol", true);
-                    return [3 /*break*/, 21];
-                case 6: return [4 /*yield*/, deploySafe(network, verify)];
-                case 7:
+                    return [3 /*break*/, 22];
+                case 7: return [4 /*yield*/, deploySafe(network, verify)];
+                case 8:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeploySafe.s.sol", false);
-                    return [3 /*break*/, 21];
-                case 8: return [4 /*yield*/, deployMTSController(network, verify)];
-                case 9:
+                    return [3 /*break*/, 22];
+                case 9: return [4 /*yield*/, deployMTSController(network, verify)];
+                case 10:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMTSController.s.sol", true);
-                    return [3 /*break*/, 21];
-                case 10: return [4 /*yield*/, deployMTSControllerWithRestaurant(network, verify)];
-                case 11:
+                    return [3 /*break*/, 22];
+                case 11: return [4 /*yield*/, deployMTSControllerWithRestaurant(network, verify)];
+                case 12:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMinimalScenarioWithPkOwner.s.sol", true);
-                    return [3 /*break*/, 21];
-                case 12: return [4 /*yield*/, deploySafeMTSControllerResturant(network, verify)];
-                case 13:
+                    return [3 /*break*/, 22];
+                case 13: return [4 /*yield*/, deploySafeMTSControllerResturant(network, verify)];
+                case 14:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMinimalScenarioWithSafeOwner.s.sol", true);
-                    return [3 /*break*/, 21];
-                case 14: return [4 /*yield*/, deployAResturantWithEOA(network, verify)];
-                case 15:
+                    return [3 /*break*/, 22];
+                case 15: return [4 /*yield*/, deployAResturantWithEOA(network, verify)];
+                case 16:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployResturantWithPkOwner.s.sol", false);
-                    return [3 /*break*/, 21];
-                case 16: return [4 /*yield*/, deployAResturantWithSafe(network, verify)];
-                case 17:
+                    return [3 /*break*/, 22];
+                case 17: return [4 /*yield*/, deployAResturantWithSafe(network, verify)];
+                case 18:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployResturantWithSafeOwner.s.sol", false);
-                    return [3 /*break*/, 21];
-                case 18: return [4 /*yield*/, deployAMockERC20(network, verify)];
-                case 19:
+                    return [3 /*break*/, 22];
+                case 19: return [4 /*yield*/, deployAMockERC20(network, verify)];
+                case 20:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMockErc20.s.sol", false);
-                    return [3 /*break*/, 21];
-                case 20:
-                    console.log("Invalid choice. Exiting...");
-                    return [3 /*break*/, 21];
+                    return [3 /*break*/, 22];
                 case 21:
+                    console.log("Invalid choice. Exiting...");
+                    return [3 /*break*/, 22];
+                case 22:
                     rl.close();
                     return [2 /*return*/];
             }

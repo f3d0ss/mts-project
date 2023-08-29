@@ -202,10 +202,13 @@ async function main() {
 
   const scenario = scenarioChoice.trim() || "0";
 
-  const verifyChoice = await askQuestion(
-    "Do you want to verify the contracts? (y/N): "
-  );
-  const verify = /^y(es)?$/i.test(verifyChoice.trim());
+  let verify = false;
+  if (network !== "localhost") {
+    const verifyChoice = await askQuestion(
+      "Do you want to verify the contracts? (y/N): "
+    );
+    verify = /^y(es)?$/i.test(verifyChoice.trim());
+  }
 
   switch (scenario) {
     case "0":
