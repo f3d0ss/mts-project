@@ -7,10 +7,7 @@
     "fork": "anvil --fork-url ${0:-mainnet} --config-out localhost.json",
     "compile": "forge compile",
     "generate": "node script/generateAccount.js",
-    "__deploy": "forge build --build-info --build-info-path out/build-info/ && forge script script/Deploy.s.sol --rpc-url ${0:-default_network} --broadcast && node script/generateTsAbis.js",
-    "__deploy:minimal": "forge build --build-info --build-info-path out/build-info/ && forge script script/Deploy.s.sol --broadcast --sig 'run(uint256,address,string,string)' 2 0x90F79bf6EB2c4f870365E785982E1f101E93b906 'NAME' 'NM' --rpc-url ${0:-default_network} && node script/generateTsAbis.js",
     "deploy": "forge build --build-info --build-info-path out/build-info/ && yarn tsc script/deploy.ts && node script/deploy.js",
-    "__deploy:verify": "forge build --build-info --build-info-path out/build-info/ && forge script script/Deploy.s.sol --rpc-url ${0:-default_network} --broadcast --verify && node script/generateTsAbis.js && && node script/generateTsAbis.js",
     "lint": "forge fmt",
     "test": "forge test"
   },
