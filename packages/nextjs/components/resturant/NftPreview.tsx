@@ -23,19 +23,19 @@ export default function NftPreview({ nft, buttons, showOwner }: NftPreviewProps)
   useEffect(() => {
     const init = async () => {
       if (metadata) return;
-      if (getFile && isOnline) {
-        const jsonFile = await getFile(nft.uri);
-        const rawJson = Buffer.from(jsonFile).toString("utf8");
-        const json: NftMetadata = JSON.parse(rawJson);
-        const image = await getFile(json.image);
-        const base64Image = Buffer.from(image).toString("base64");
-        const imageUrl = `data:image/jpeg;base64,${base64Image}`;
-        setMetadata(json);
-        setImage(imageUrl);
-      }
+      const jsonFile = await getFile(nft.uri);
+      if (!jsonFile) return;
+      const rawJson = Buffer.from(jsonFile).toString("utf8");
+      const json: NftMetadata = JSON.parse(rawJson);
+      const image = await getFile(json.image);
+      if (!image) return;
+      const base64Image = Buffer.from(image).toString("base64");
+      const imageUrl = `data:image/jpeg;base64,${base64Image}`;
+      setMetadata(json);
+      setImage(imageUrl);
     };
     init();
-  }, [getFile, metadata, nft.uri, isOnline]);
+  }, [metadata, nft.uri, isOnline, getFile]);
 
   return (
     <div className="col-span-1 bg-base-100 border-base-300 border shadow-md shadow-secondary rounded-3xl rounded-t-md aspect-w-13">
