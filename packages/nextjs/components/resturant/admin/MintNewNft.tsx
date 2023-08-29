@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { InputImage } from "./InputImage";
 import { useContractWrite, useNetwork } from "wagmi";
+import DatePicker from "~~/components/DatePicker";
 import { TextAreaInput } from "~~/components/TextAreaInput";
 import { AddressInput, InputBase, IntegerInput } from "~~/components/scaffold-eth";
 import contracts from "~~/generated/usefulAbis";
@@ -19,7 +20,7 @@ export default function MintNewNft({ resturantAddress }: MintNewNftProps) {
   const [newDescription, setDescription] = useState<string>("");
   const [newPrice, setPrice] = useState<bigint | string>("");
   const [newTokenAddress, setTokenAddress] = useState("");
-  const [newReservationDate, setReservationDate] = useState<bigint | string>("");
+  const [newReservationDate, setReservationDate] = useState<Date>(new Date());
   const writeTx = useTransactor();
 
   const { chain } = useNetwork();
@@ -31,7 +32,7 @@ export default function MintNewNft({ resturantAddress }: MintNewNftProps) {
     functionName: "safeMint",
   });
 
-  const { uploadFile, isOnline, isConnecting } = useIPFSGateway();
+  const { uploadFile, isConnecting } = useIPFSGateway();
 
   async function submit() {
     if (!newImage) {
@@ -42,12 +43,13 @@ export default function MintNewNft({ resturantAddress }: MintNewNftProps) {
       notification.loading("Connecting to IPFS");
       return;
     }
-    if (!isOnline || !uploadFile) {
+
+    const newImageCID = await uploadFile(newImage);
+
+    if (!newImageCID) {
       notification.error("Error connecting to IPFS");
       return;
     }
-
-    const newImageCID = await uploadFile(newImage);
 
     const metadata: NftMetadata = {
       description: newDescription,
@@ -61,14 +63,24 @@ export default function MintNewNft({ resturantAddress }: MintNewNftProps) {
     const encodedString = encoder.encode(jsonMetadata);
 
     const nftCID = await uploadFile(encodedString);
+    if (!nftCID) {
+      notification.error("Error connecting to IPFS");
+      return;
+    }
     writeTx(() =>
       writeSafeMint({
-        args: [BigInt(newPrice), newTokenAddress, Number(newReservationDate), `ipfs://${nftCID.toString()}`],
+        args: [
+          BigInt(newPrice),
+          newTokenAddress,
+          (newReservationDate.getTime() - newReservationDate.getMilliseconds()) / 1000,
+          `ipfs://${nftCID.toString()}`,
+        ],
       }),
     );
     console.log(`ipfs://${nftCID.toString()}`);
   }
 
+  console.log(newReservationDate);
   return (
     <div className="bg-base-100 border-base-300 border shadow-md shadow-secondary rounded-3xl lg:px-2 mb-6 space-y-1 py-4 ">
       <InputImage onChange={setImage} />
@@ -92,17 +104,7 @@ export default function MintNewNft({ resturantAddress }: MintNewNftProps) {
         name="Price"
         placeholder="Price"
       />
-      <IntegerInput
-        value={newReservationDate}
-        onChange={value => {
-          try {
-            const bigValue = BigInt(value);
-            setReservationDate(bigValue);
-          } catch {}
-        }}
-        name="Reservation Date"
-        placeholder="Reservation Date"
-      />
+      <DatePicker value={newReservationDate} onChange={setReservationDate} />
       <div className="flex justify-between gap-2">
         <div
           className={`flex ${
