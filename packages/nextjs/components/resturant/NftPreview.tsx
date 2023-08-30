@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import Image from "next/image";
 import { Spinner } from "../Spinner";
 import { Address } from "../scaffold-eth";
+import NftPreviewReview from "./NftPreviewReview";
 import NftPrice from "./NftPrice";
 import ResturantName from "./ResturantName";
 import { useIPFSGateway } from "~~/hooks/useIPFSGateway";
@@ -13,12 +14,14 @@ type NftPreviewProps = {
   nft: ResturantNft;
   buttons: (nft: ResturantNft) => ReactNode[];
   showOwner?: boolean;
+  editableReview?: boolean;
 };
 
-export default function NftPreview({ nft, buttons, showOwner }: NftPreviewProps) {
-  const { isOnline, isConnecting, getFile } = useIPFSGateway();
+export default function NftPreview({ nft, buttons, showOwner, editableReview }: NftPreviewProps) {
   const [metadata, setMetadata] = useState<NftMetadata | undefined>();
   const [image, setImage] = useState<string | undefined>();
+
+  const { isOnline, isConnecting, getFile } = useIPFSGateway();
 
   useEffect(() => {
     const init = async () => {
@@ -87,6 +90,7 @@ export default function NftPreview({ nft, buttons, showOwner }: NftPreviewProps)
             </>
           )}
         </div>
+        <NftPreviewReview nft={nft} editableReview={editableReview} />
       </div>
     </div>
   );

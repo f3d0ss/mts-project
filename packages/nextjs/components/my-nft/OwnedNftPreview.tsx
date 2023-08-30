@@ -8,5 +8,7 @@ type OwnedNftPreviewProps = {
 };
 
 export default function OwnedNftPreview({ nft }: OwnedNftPreviewProps) {
-  return <NftPreview nft={nft} buttons={nft => [<OwnedNftButton key={nft.id.toString()} nft={nft} />]} />;
+  return (
+    <NftPreview nft={nft} editableReview buttons={nft => [<OwnedNftButton key={nft.id.toString()} nft={nft} />]} />
+  );
 }
