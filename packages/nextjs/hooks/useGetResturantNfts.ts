@@ -72,15 +72,17 @@ export const useGetResturantNfts = ({ resturant, onlyOnSale, ownedBy }: UseGetRe
 
   const fetchedNftsTyped = fetchedNfts && fetchedNfts.map(fetchedNft => fetchedNft.result as FetchedNft);
 
-  let nfts: ResturantNft[] | undefined = [];
+  const nfts = new Array<ResturantNft>();
   if (tokenIds) {
-    nfts = fetchedNftsTyped?.map<ResturantNft>((fetchedNft: FetchedNft, i) => {
-      return {
-        ...fetchedNft,
-        resturant,
-        id: tokenIds[i].result as bigint,
-        owner: nftOwnersTyped ? nftOwnersTyped[i] : "",
-      };
+    fetchedNftsTyped?.forEach((fetchedNft: FetchedNft, i) => {
+      if (tokenIds[i].result) {
+        nfts.push({
+          ...fetchedNft,
+          resturant,
+          id: tokenIds[i].result as bigint,
+          owner: nftOwnersTyped ? nftOwnersTyped[i] : "",
+        });
+      }
     });
   }
 

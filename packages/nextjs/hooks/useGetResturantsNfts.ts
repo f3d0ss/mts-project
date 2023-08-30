@@ -94,18 +94,18 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy, watch }:
   const fetchedNftsTypedSplit = splitDataByContract(numberOfTokenPerResturant ?? [], fetchedNftsTyped ?? []);
 
   const nfts = new Array<ResturantNft>();
-  if (tokenIdsPerResturant) {
-    fetchedNftsTypedSplit.forEach((fetchedNftsTyped, i) =>
-      fetchedNftsTyped.forEach((fetchedNft, k) => {
+  fetchedNftsTypedSplit.forEach((fetchedNftsTyped, i) =>
+    fetchedNftsTyped.forEach((fetchedNft, k) => {
+      if (tokenIdsPerResturantSliced[i][k]) {
         nfts.push({
           ...fetchedNft,
           resturant: resturants[i],
           id: tokenIdsPerResturantSliced[i][k],
           owner: nftOwnersTypedSplit[i][k],
         });
-      }),
-    );
-  }
+      }
+    }),
+  );
 
   return { nfts, isLoading: isLoadingNumberOfToken || isLoadingTokenIds || isLoadingNfts || isLoadingOwners };
 };

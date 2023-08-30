@@ -32,9 +32,7 @@ export default function NftPreviewReview({ nft, editableReview }: NftPreviewRevi
     init();
   }, [nft.reviewUri, isOnline, getFile]);
 
-  const hasAReview = nft.reviewUri.length != 0;
-
-  console.log({ editableReview, hasAReview });
+  const hasAReview = nft.reviewUri && nft.reviewUri.length != 0;
 
   if (!nft.locked || (!editableReview && !hasAReview)) {
     return <></>;
