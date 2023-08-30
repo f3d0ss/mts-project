@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import Image from "next/image";
 import { Spinner } from "../Spinner";
+import MarkdownDisplay from "../markdown-editor/MarkdownDisplay";
 import { Address } from "../scaffold-eth";
 import NftPreviewReview from "./NftPreviewReview";
 import NftPrice from "./NftPrice";
@@ -78,9 +79,15 @@ export default function NftPreview({ nft, buttons, showOwner, editableReview }: 
             <Spinner />
           )}
         </div>
-        <div className="py-2">
-          <span className="font-bold">Description</span>:{" "}
-          {metadata ? metadata.description : isConnecting ? <Spinner /> : "Error connecting to IPFS"}
+        <div className="py-2 flex flex-col">
+          <span className="font-bold">Description:</span>
+          {metadata ? (
+            <MarkdownDisplay>{metadata.description}</MarkdownDisplay>
+          ) : isConnecting ? (
+            <Spinner />
+          ) : (
+            "Error connecting to IPFS"
+          )}
         </div>
         <div className="flex justify-between items-center py-2">
           {nft && (

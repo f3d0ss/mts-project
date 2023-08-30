@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { InputImage } from "./InputImage";
 import { useContractWrite, useNetwork } from "wagmi";
 import DatePicker from "~~/components/DatePicker";
-import { TextAreaInput } from "~~/components/TextAreaInput";
+import MarkdownEditor from "~~/components/markdown-editor/MarkdownEditor";
 import { AddressInput, InputBase, IntegerInput } from "~~/components/scaffold-eth";
 import contracts from "~~/generated/usefulAbis";
 import { useTransactor } from "~~/hooks/scaffold-eth";
@@ -85,13 +85,7 @@ export default function MintNewNft({ resturantAddress }: MintNewNftProps) {
     <div className="bg-base-100 border-base-300 border shadow-md shadow-secondary rounded-3xl lg:px-2 mb-6 space-y-1 py-4 ">
       <InputImage onChange={setImage} />
       <InputBase value={newName} onChange={setName} name="Name" placeholder="Name" />
-      <TextAreaInput
-        value={newDescription}
-        onChange={setDescription}
-        name="Description"
-        placeholder="Description"
-        rows={4}
-      />
+      <MarkdownEditor value={newDescription} onChange={setDescription} placeholder="Description" />
       <AddressInput value={newTokenAddress} onChange={setTokenAddress} name="PaymentToken" placeholder="PaymentToken" />
       <IntegerInput
         value={newPrice}
