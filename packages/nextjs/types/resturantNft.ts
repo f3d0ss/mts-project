@@ -7,4 +7,5 @@ export type ResturantNft = {
   uri: string;
   resturant: string;
   owner: string;
+  reviewUri: string;
 };
