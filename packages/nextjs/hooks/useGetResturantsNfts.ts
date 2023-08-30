@@ -1,14 +1,7 @@
 import { useContractReads } from "wagmi";
 import contracts from "~~/generated/usefulAbis";
+import { FetchedNft } from "~~/types/fetchedNft";
 import { ResturantNft } from "~~/types/resturantNft";
-
-type FetchedNft = {
-  price: bigint;
-  paymentToken: string;
-  reservationDate: number;
-  locked: boolean;
-  uri: string;
-};
 
 type UseGetResturantsNftsProps = {
   resturants: string[];
@@ -21,7 +14,6 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy, watch }:
   const functionTotalName = ownedBy ? "balanceOf" : "totalSupply";
   const argsTotal: [string] | undefined = ownedBy ? [ownedBy] : undefined;
 
-  console.log(argsTotal);
   const numbersOfTokensReads = resturants.map(resturant => {
     return {
       address: resturant,
@@ -64,7 +56,6 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy, watch }:
 
   const tokenIdsPerResturantTyped =
     tokenIdsPerResturant && tokenIdsPerResturant.map(tokenIdData => tokenIdData.result as bigint);
-  console.log({ tokenIdsPerResturantTyped });
 
   const tokenIdsPerResturantSliced = splitDataByContract(
     numberOfTokenPerResturant ?? [],
@@ -98,6 +89,7 @@ export const useGetResturantsNfts = ({ resturants, onlyOnSale, ownedBy, watch }:
   const nftOwnersTyped = nftOwners && nftOwners.map(nftOwnerData => nftOwnerData.result as string);
   const nftOwnersTypedSplit = splitDataByContract(numberOfTokenPerResturant ?? [], nftOwnersTyped ?? []);
 
+  console.warn({ fetchedNfts });
   const fetchedNftsTyped = fetchedNfts && fetchedNfts.map(fetchedNft => fetchedNft.result as FetchedNft);
   const fetchedNftsTypedSplit = splitDataByContract(numberOfTokenPerResturant ?? [], fetchedNftsTyped ?? []);
 

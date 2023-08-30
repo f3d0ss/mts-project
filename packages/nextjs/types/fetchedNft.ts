@@ -4,4 +4,5 @@ export type FetchedNft = {
   reservationDate: number;
   locked: boolean;
   uri: string;
+  reviewUri: string;
 };

@@ -1,14 +1,7 @@
 import { useContractRead, useContractReads } from "wagmi";
 import contracts from "~~/generated/usefulAbis";
+import { FetchedNft } from "~~/types/fetchedNft";
 import { ResturantNft } from "~~/types/resturantNft";
-
-type FetchedNft = {
-  price: bigint;
-  paymentToken: string;
-  reservationDate: number;
-  locked: boolean;
-  uri: string;
-};
 
 type UseGetResturantNftsProps = {
   resturant: string;
@@ -23,7 +16,6 @@ export const useGetResturantNfts = ({ resturant, onlyOnSale, ownedBy }: UseGetRe
   const functionTotalName = ownedBy ? "balanceOf" : "totalSupply";
   const args: [string] | undefined = ownedBy ? [ownedBy] : undefined;
 
-  console.log(args);
   const { data: numberOfTokenBigInt, isLoading: isLoadingNumberOfToken } = useContractRead({
     address: resturant,
     abi: contracts.ResturantToken.abi,
@@ -33,7 +25,6 @@ export const useGetResturantNfts = ({ resturant, onlyOnSale, ownedBy }: UseGetRe
   });
 
   const numberOfToken = Number(numberOfTokenBigInt);
-  console.log(numberOfToken);
 
   const functionByIndexName = ownedBy ? "tokenOfOwnerByIndex" : "tokenByIndex";
   const tokenIdsReads = Array.from({ length: numberOfToken }).map((_, i) => {
