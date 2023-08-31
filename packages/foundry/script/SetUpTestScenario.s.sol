@@ -8,7 +8,6 @@ import { DeployMTSController } from "./DeployMTSController.s.sol";
 import { DeployMinimalScenarioWithPkOwner } from "./DeployMinimalScenarioWithPkOwner.s.sol";
 import { DeployResturantWithPkOwner } from "./DeployResturantWithPkOwner.s.sol";
 import { DeployMockErc20 } from "./DeployMockErc20.s.sol";
-import { AddAlloedTokenToController, MintNft } from "./Interactions.s.sol";
 import { ERC20Mock } from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
 import { console2 } from "forge-std/console2.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
@@ -41,7 +40,8 @@ contract SetUpTestScenario is BaseScript {
 
         ERC20Mock erc20 = new DeployMockErc20().run();
 
-        new AddAlloedTokenToController().run(address(controller), address(erc20), 1);
+        vm.broadcast(CONTROLLER_OWNER_PK);
+        controller.setAcceptableMinPrice(address(erc20), 1);
 
         for (uint256 i = 0; i < RESTURANT_OWNERS.length; i++) {
             fundAddress(RESTURANT_OWNERS[i]);
