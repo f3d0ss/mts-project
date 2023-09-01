@@ -12,10 +12,14 @@ const buildFoundryLintCommand = (filenames) =>
     .map((f) => path.relative(path.join("packages", "foundry"), f))
     .join(" ")}`;
 
+const buildPinnerLintCommand = () =>
+  `cargo check --manifest-path packages/pinner/Cargo.toml`;
+
 module.exports = {
   "packages/nextjs/**/*.{ts,tsx}": [
     buildNextEslintCommand,
     checkTypesNextCommand,
   ],
   "packages/foundry/**/*.sol": [buildFoundryLintCommand],
+  "packages/pinner/**/*.rs": [buildPinnerLintCommand],
 };
