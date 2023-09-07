@@ -62,7 +62,7 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
     error ResturantToken__SenderIsNotNftOwner();
 
     modifier onlyConrtoller() {
-        if (msg.sender != address(s_mtsController)) {
+        if (_msgSender() != address(s_mtsController)) {
             revert ResturantToken__SenderIsNotTheController();
         }
         _;
@@ -139,16 +139,18 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
             uri: uri,
             reviewUri: ""
         });
+        // ERC-5192
+        emit Unlocked(tokenId);
     }
 
     function buyNFT(uint256 tokenId) external payable isForSale(tokenId) {
         uint256 salePrice = s_nfts[tokenId].price;
         address paymentToken = s_nfts[tokenId].paymentToken;
-        bool success = IERC20(paymentToken).transferFrom(msg.sender, address(this), salePrice);
+        bool success = IERC20(paymentToken).transferFrom(_msgSender(), address(this), salePrice);
         if (!success) {
             revert ResturantToken__TransferFailed();
         }
-        address newOwner = msg.sender;
+        address newOwner = _msgSender();
         _transfer(address(this), newOwner, tokenId);
     }
 
@@ -171,6 +173,8 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
         payoutToken(tokenId);
         // Maybe lock NFT and stop
         s_nfts[tokenId].locked = true;
+        // ERC-5192
+        emit Locked(tokenId);
     }
 
     /**
@@ -183,7 +187,7 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
     )
         external
         isUsed(tokenId)
-        isNftOwner(tokenId, msg.sender)
+        isNftOwner(tokenId, _msgSender())
     {
         s_nfts[tokenId].reviewUri = uri;
         emit ReviewPosted(tokenId, uri);
@@ -268,8 +272,12 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
         return s_nfts[tokenId];
     }
 
+    function isTokenUsed(uint256 tokenId) external view returns (bool) {
+        return s_nfts[tokenId].locked;
+    }
+
     /* ========================================================================== */
-    /*                                   ERC5192                                  */
+    /*                                   ERC-5192                                  */
     /* ========================================================================== */
     function locked(uint256 tokenId) external view returns (bool) {
         return s_nfts[tokenId].locked;
@@ -292,6 +300,8 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
     /* ========================================================================== */
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
+        // ERC-5192
+        if (interfaceId == 0xb45a3c0e) return true;
         return super.supportsInterface(interfaceId);
     }
 
