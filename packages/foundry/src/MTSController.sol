@@ -11,7 +11,6 @@ contract MTSController is IMTSController, Ownable {
     mapping(address paymentToken => uint256 minimumPrice) private s_acceptableMinPrices;
     mapping(address paymentToken => uint256 basePointFees) private s_basePointFees;
     address[] private s_resturantAddresses;
-    uint256 private s_numberOfResturantsAdded;
 
     event AddNewResturant(uint256 indexed id, address newResturantAddress, string resturantName);
     event RemovedResturant(uint256 indexed id, address resturantAddress, string resturantName);
@@ -40,8 +39,7 @@ contract MTSController is IMTSController, Ownable {
     {
         ResturantToken newResturant = new ResturantToken(_resturantOwner, address(this), _name, _symbol);
         s_resturantAddresses.push(address(newResturant));
-        emit AddNewResturant(s_numberOfResturantsAdded, address(newResturant), _name);
-        s_numberOfResturantsAdded++;
+        emit AddNewResturant(s_resturantAddresses.length, address(newResturant), _name);
         return newResturant;
     }
 
@@ -97,12 +95,8 @@ contract MTSController is IMTSController, Ownable {
         return s_resturantAddresses[index];
     }
 
-    function getNumberOfResturantsAdded() public view returns (uint256) {
-        return s_numberOfResturantsAdded;
-    }
-
     function getNumberOfResturants() public view returns (uint256) {
-        return s_numberOfResturantsAdded;
+        return s_resturantAddresses.length;
     }
 
     function withdrawFunds(address[] calldata tokens, uint256[] calldata balances, address to) external onlyOwner {
