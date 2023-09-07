@@ -95,6 +95,15 @@ contract MTSController is IMTSController, Ownable {
         return s_resturantAddresses[index];
     }
 
+    function isResturantAddress(address resturantAddress) public view returns (bool) {
+        if (resturantAddress == address(0)) return false;
+        uint256 numberOfRestturants = s_resturantAddresses.length;
+        for (uint256 i = 0; i < numberOfRestturants; i++) {
+            if (s_resturantAddresses[i] == resturantAddress) return true;
+        }
+        return false;
+    }
+
     function getNumberOfResturants() public view returns (uint256) {
         return s_resturantAddresses.length;
     }
