@@ -41,7 +41,7 @@ export const useIPFSGateway = () => {
   const uploadFile = async (file: Uint8Array) => {
     try {
       if (!ipfsHttpClient) throw Error("IPFS not yet initialized");
-      const result = await ipfsHttpClient.add(file);
+      const result = await ipfsHttpClient.add(file, { cidVersion: 1, hashAlg: "sha2-256" });
       return result.cid;
     } catch (e) {
       if (e instanceof Error && (e.message == "Failed to fetch" || e.message == "IPFS not yet initialized")) {
@@ -55,6 +55,7 @@ export const useIPFSGateway = () => {
 
   const getFile = async (ipfsPath: string) => {
     try {
+      if (!ipfsPath) throw Error("Path not provided");
       if (!ipfsHttpClient) throw Error("IPFS not yet initialized");
       if (ipfsPath.startsWith("ipfs://")) {
         ipfsPath = ipfsPath.substring(7);
@@ -69,6 +70,10 @@ export const useIPFSGateway = () => {
       if (e instanceof Error && (e.message == "Failed to fetch" || e.message == "IPFS not yet initialized")) {
         console.error("Failed to connect to IPFS");
         setIsOnline(false);
+        return undefined;
+      }
+      if (e instanceof Error && e.message == "Path not provided") {
+        console.error(e.message);
         return undefined;
       }
       throw e;
