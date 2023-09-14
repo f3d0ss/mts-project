@@ -39,7 +39,7 @@ contract MTSController is IMTSController, Ownable {
     {
         ResturantToken newResturant = new ResturantToken(_resturantOwner, address(this), _name, _symbol);
         s_resturantAddresses.push(address(newResturant));
-        emit AddNewResturant(s_resturantAddresses.length, address(newResturant), _name);
+        emit AddNewResturant(s_resturantAddresses.length - 1, address(newResturant), _name);
         return newResturant;
     }
 
@@ -112,7 +112,8 @@ contract MTSController is IMTSController, Ownable {
         if (tokens.length != balances.length) {
             revert MTSController__TokensBalancesMismatch();
         }
-        for (uint256 i = 0; i < tokens.length;) {
+        uint256 numberOfTokens = tokens.length;
+        for (uint256 i = 0; i < numberOfTokens;) {
             if (s_acceptableMinPrices[tokens[i]] == 0) {
                 revert MTSController__UnacceptableToken();
             }
