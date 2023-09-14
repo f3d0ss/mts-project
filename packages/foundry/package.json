@@ -7,7 +7,7 @@
     "fork": "anvil --fork-url ${0:-mainnet} --config-out localhost.json",
     "compile": "forge compile",
     "generate": "node script/generateAccount.js",
-    "deploy": "forge build --build-info --build-info-path out/build-info/ && yarn tsc script/deploy.ts && node script/deploy.js",
+    "deploy": "forge build --build-info --build-info-path out/build-info/ && yarn tsc script/deploy.ts && node script/deploy.js && node script/generateUsefulABIScript.js",
     "lint": "forge fmt",
     "test": "forge test"
   },
