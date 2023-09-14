@@ -8,6 +8,7 @@ import { ResturantToken } from "src/ResturantToken.sol";
 import { MTSControllerMock } from "./mocks/MTSControllerMock.sol";
 import { ERC20Mock } from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
 import { VerifySignature } from "src/lib/VerifySignature.sol";
+import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract ResturantTokenTest is PRBTest, StdCheats {
     string constant TOKEN_NAME = "Token Name";
@@ -29,7 +30,9 @@ contract ResturantTokenTest is PRBTest, StdCheats {
         (RESTURANT_OWNER_ADDRESS, RESTURANT_OWNER_KEY) = makeAddrAndKey("resturant_wallet");
         (USER_ADDRESS, USER_KEY) = makeAddrAndKey("user");
         controller = new MTSControllerMock();
-        resturantToken = new ResturantToken(RESTURANT_OWNER_ADDRESS, address(controller), TOKEN_NAME, TOKEN_SYMBOL);
+        address resturantTokenImplementation = address(new ResturantToken());
+        resturantToken = ResturantToken(Clones.clone(resturantTokenImplementation));
+        resturantToken.initialize(RESTURANT_OWNER_ADDRESS, address(controller), TOKEN_NAME, TOKEN_SYMBOL);
         nftPriceToken = new ERC20Mock();
         EXPIRATION_RANGE = resturantToken.EXPIRATION_RANGE();
         RESERVATION_DATE_TIMESTAMP = uint32(block.timestamp) + RESERVATION_IN;
@@ -266,9 +269,7 @@ contract ResturantTokenTest is PRBTest, StdCheats {
     /*                              getControllerAddress                              */
     /* ========================================================================== */
     function test_getControllerAddress_retrunTheAddressSetInTheConstructor() public {
-        ResturantToken resturantTokenTemp =
-            new ResturantToken(RESTURANT_OWNER_ADDRESS, address(controller), TOKEN_NAME, TOKEN_SYMBOL);
-        address returnGetControllerAddress = resturantTokenTemp.getControllerAddress();
+        address returnGetControllerAddress = resturantToken.getControllerAddress();
         assertEq(returnGetControllerAddress, address(controller));
     }
 
