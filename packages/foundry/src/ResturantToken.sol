@@ -138,12 +138,12 @@ contract ResturantToken is
         public
         initializer
     {
-        s_mtsController = IMTSController(_mtsController);
-        transferOwnership(_owner);
         __ERC721_init(_name, _symbol);
         __ERC721Enumerable_init();
         __Pausable_init();
         __Ownable_init();
+        s_mtsController = IMTSController(_mtsController);
+        transferOwnership(_owner);
     }
 
     function safeMint(
