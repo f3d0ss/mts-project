@@ -5,9 +5,11 @@
 //! polling.
 
 mod command_line_parser;
+mod pinner;
 mod read_settings;
 
 use crate::command_line_parser::*;
+use crate::pinner::pinner;
 use crate::read_settings::*;
 use ethers::prelude::*;
 use foundry_contracts::mts_controller::RemovedResturantFilter;
@@ -19,6 +21,7 @@ use foundry_contracts::resturant_token::{
 };
 use std::collections::HashMap;
 use std::sync::Arc;
+use tokio::sync::mpsc::{self, Sender};
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -30,6 +33,9 @@ async fn main() -> eyre::Result<()> {
     let provider = Provider::<Ws>::connect(ws_url).await?;
 
     let client = Arc::new(provider);
+
+    let (tx, rx) = mpsc::channel(32);
+    tokio::spawn(pinner(rx));
 
     let mts_controller_contract =
         MTSController::new(controller_address.parse::<Address>()?, client.clone());
@@ -45,8 +51,10 @@ async fn main() -> eyre::Result<()> {
             }) => {
                 println!("New resturant added with address: {:?}", resturant_address);
                 let new_resturant_contract = ResturantToken::new(resturant_address, client.clone());
-                let resturant_listener =
-                    tokio::spawn(listen_to_resturant_events(new_resturant_contract));
+                let resturant_listener = tokio::spawn(listen_to_resturant_events(
+                    new_resturant_contract,
+                    tx.clone(),
+                ));
                 streams.insert(resturant_address, resturant_listener);
             }
             MTSControllerEvents::RemovedResturantFilter(RemovedResturantFilter {
@@ -70,14 +78,15 @@ async fn main() -> eyre::Result<()> {
     Ok(())
 }
 
-async fn listen_to_resturant_events(resturant: ResturantToken<Provider<Ws>>) -> eyre::Result<()> {
+async fn listen_to_resturant_events(
+    resturant: ResturantToken<Provider<Ws>>,
+    tx: Sender<pinner::Action>,
+) -> eyre::Result<()> {
     let resturant_events = resturant.events().from_block(0);
 
     let mut stream = resturant_events.subscribe().await?;
 
     println!("Listening on resturant: {:?}", resturant.address());
-
-    // streams.insert(resturant_address, stream);
 
     while let Some(Ok(event)) = stream.next().await {
         let zero_address = Address::zero();
@@ -95,6 +104,17 @@ async fn listen_to_resturant_events(resturant: ResturantToken<Provider<Ws>>) -> 
                 token_id,
             }) if to == resturant.address() => {
                 // pin
+                let token_uri = resturant.token_uri(token_id).call().await;
+                match token_uri {
+                    Ok(token_uri) => {
+                        println!("Added new Token with token_uri: {:?}", token_uri);
+                        let _ = tx.send(pinner::Action::Add(token_uri)).await;
+                    }
+                    Err(e) => {
+                        println!("Error retriving URI for token_id {:?}", token_id);
+                        println!("Error: {:?}", e);
+                    }
+                }
                 println!("Added new Token with id: {:?}", token_id);
             }
             ResturantTokenEvents::TransferFilter(TransferFilter {
@@ -103,6 +123,17 @@ async fn listen_to_resturant_events(resturant: ResturantToken<Provider<Ws>>) -> 
                 token_id,
             }) if to == zero_address => {
                 // unpin
+                let token_uri = resturant.token_uri(token_id).call().await;
+                match token_uri {
+                    Ok(token_uri) => {
+                        println!("Remove Token with token_uri: {:?}", token_uri);
+                        let _ = tx.send(pinner::Action::Remove(token_uri)).await;
+                    }
+                    Err(e) => {
+                        println!("Error retriving URI for token_id {:?}", token_id);
+                        println!("Error: {:?}", e);
+                    }
+                }
                 println!("Burned Token with id: {:?}", token_id);
             }
             _ => {}

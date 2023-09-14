@@ -8,5 +8,3 @@ mainnet = "wss://mainnet.infura.io/ws/v3/c60b0bb42f8a4c6481ecd229eddaca27"
 optimism = "ws://..."
 polygon = "ws://..."
 sepolia = "ws://..."
-
-ipfs = "http://127.0.0.1:5001"

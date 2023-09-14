@@ -17,3 +17,6 @@ eyre = "0.6.8"
 config = "0.13.3"
 clap = { version = "4.4.1", features = ["derive"] }
 foundry-contracts = { path = "../bindings" }
+ipfs-api-backend-hyper = { version = "0.6.0", features = ["with-send-sync"] }
+futures = "0.3.28"
+async-recursion = "1.0.5"
