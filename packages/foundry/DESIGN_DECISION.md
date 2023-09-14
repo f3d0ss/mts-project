@@ -19,14 +19,27 @@ create a `ResturantToken`
 
 - [x] Scripts for contract deployment
 - [x] Resturant get money if token not used after time
-- [] Scripts for interaction
-- [] Experience reviews
-- [] GnosisSafe
-- [] UI
+- [-] Scripts for interaction
+- [x] Experience reviews
+- [~] GnosisSafe
+- [x] UI
 - [] DAO
+- [] Test
+  - [~] ResturantToken 
+  - [] MTSController
 
 TOTHINK:
 
 - Use factory for ResturantToken
   [link](https://consensys.net/diligence/blog/2019/09/factories-improve-smart-contract-security/) drawback: much more
   gas
+
+  - Factory of proxy (save gas) EIP 1167
+
+- Open dispute if client find resturant closed
+
+- Way of discount experience for certain user (eg. a user that bougth 10 exp can buy the 11th at a discount (no fee))
+
+- Add versioning of ResturantToken contract
+
+- Dao should not need timelock since there is no meaning in exiting the DAO since you cannot transfer voting power
