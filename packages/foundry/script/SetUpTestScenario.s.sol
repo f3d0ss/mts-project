@@ -6,7 +6,6 @@ import { MTSController } from "src/MTSController.sol";
 import { ResturantToken } from "src/ResturantToken.sol";
 import { DeployMTSController } from "./DeployMTSController.s.sol";
 import { DeployMinimalScenarioWithPkOwner } from "./DeployMinimalScenarioWithPkOwner.s.sol";
-import { DeployResturantWithPkOwner } from "./DeployResturantWithPkOwner.s.sol";
 import { DeployMockErc20 } from "./DeployMockErc20.s.sol";
 import { ERC20Mock } from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
 import { console2 } from "forge-std/console2.sol";

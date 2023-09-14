@@ -17,6 +17,7 @@ contract DeployResturantWithPkOwner is BaseScript, SortKeys {
         address controllerAddress
     )
         public
+        broadcast
         returns (ResturantToken)
     {
         // uint256 controllerOwner = vm.envUint("MTS_OWNER");
