@@ -16,19 +16,29 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ERC721URIStorage } from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import { ERC721Enumerable } from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { IERC721ReceiverUpgradeable } from
+    "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
+import { ERC721EnumerableUpgradeable } from
+    "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { Counters } from "@openzeppelin/contracts/utils/Counters.sol";
-import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
+import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { IERC5192 } from "./IERC5192.sol";
 import { VerifySignature } from "./lib/VerifySignature.sol";
 import { IMTSController } from "./IMTSController.sol";
+import { ERC721Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver, ERC721Enumerable {
+contract ResturantToken is
+    Initializable,
+    ERC721Upgradeable,
+    ERC721EnumerableUpgradeable,
+    PausableUpgradeable,
+    OwnableUpgradeable,
+    IERC721ReceiverUpgradeable,
+    IERC5192
+{
     using Counters for Counters.Counter;
 
     struct NFT {
@@ -96,23 +106,44 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
         _;
     }
 
-    modifier isNftOwner(uint256 tokenId, address owner) {
-        if (ownerOf(tokenId) != owner) {
+    modifier isNftOwner(uint256 tokenId, address _owner) {
+        if (ownerOf(tokenId) != _owner) {
             revert ResturantToken__SenderIsNotNftOwner();
         }
         _;
     }
 
-    constructor(
+    // constructor(
+    //     address _owner,
+    //     address _mtsController,
+    //     string memory _name,
+    //     string memory _symbol
+    // )
+    //     ERC721(_name, _symbol)
+    // {
+    //     s_mtsController = IMTSController(_mtsController);
+    //     transferOwnership(_owner);
+    // }
+
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         address _owner,
         address _mtsController,
         string memory _name,
         string memory _symbol
     )
-        ERC721(_name, _symbol)
+        public
+        initializer
     {
         s_mtsController = IMTSController(_mtsController);
         transferOwnership(_owner);
+        __ERC721_init(_name, _symbol);
+        __ERC721Enumerable_init();
+        __Pausable_init();
+        __Ownable_init();
     }
 
     function safeMint(
@@ -299,7 +330,12 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
     /*                             From OP Wizzard                                */
     /* ========================================================================== */
 
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
+        returns (bool)
+    {
         // ERC-5192
         if (interfaceId == 0xb45a3c0e) return true;
         return super.supportsInterface(interfaceId);
@@ -312,7 +348,7 @@ contract ResturantToken is ERC721, Pausable, Ownable, IERC5192, IERC721Receiver,
         uint256 batchSize
     )
         internal
-        override(ERC721, ERC721Enumerable)
+        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
     {
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }

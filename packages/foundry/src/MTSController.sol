@@ -5,12 +5,15 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IMTSController } from "./IMTSController.sol";
 import { ResturantToken } from "./ResturantToken.sol";
+import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract MTSController is IMTSController, Ownable {
     uint256 private constant MAX_BASE_POINT = 10_000;
     mapping(address paymentToken => uint256 minimumPrice) private s_acceptableMinPrices;
     mapping(address paymentToken => uint256 basePointFees) private s_basePointFees;
     address[] private s_resturantAddresses;
+    // Can be mutable if want to change resturant implementation
+    address immutable s_resturantImplementation;
 
     event AddNewResturant(uint256 indexed id, address newResturantAddress, string resturantName);
     event RemovedResturant(uint256 indexed id, address resturantAddress, string resturantName);
@@ -24,8 +27,9 @@ contract MTSController is IMTSController, Ownable {
     error MTSController__FeeCantBeMoreThanOneundredPercent();
     error MTSController__MinimumPriceCannotBeZero();
 
-    constructor(address _owner) {
+    constructor(address _owner, address _resturantImplemetnation) {
         transferOwnership(_owner);
+        s_resturantImplementation = _resturantImplemetnation;
     }
 
     function addNewResturant(
@@ -37,7 +41,9 @@ contract MTSController is IMTSController, Ownable {
         onlyOwner
         returns (ResturantToken)
     {
-        ResturantToken newResturant = new ResturantToken(_resturantOwner, address(this), _name, _symbol);
+        address newProxy = Clones.clone(s_resturantImplementation);
+        ResturantToken newResturant = ResturantToken(newProxy);
+        newResturant.initialize(_resturantOwner, address(this), _name, _symbol);
         s_resturantAddresses.push(address(newResturant));
         emit AddNewResturant(s_resturantAddresses.length - 1, address(newResturant), _name);
         return newResturant;
