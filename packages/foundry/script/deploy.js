@@ -244,6 +244,36 @@ function deployAMockERC20(network, verify) {
         });
     });
 }
+function deployDAO(network, verify) {
+    return __awaiter(this, void 0, void 0, function () {
+        var controllerAddress, command;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, askQuestion("Please enter the CONTROLLER_ADDRESS: ")];
+                case 1:
+                    controllerAddress = _a.sent();
+                    command = "forge script script/dao/DeployDAO.s.sol --broadcast --sig \"run(address)\" ".concat(controllerAddress, " --rpc-url ").concat(network, " ").concat(verify ? "--verify" : "");
+                    executeCommand(command);
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function deployDAOFreeMint(network, verify) {
+    return __awaiter(this, void 0, void 0, function () {
+        var controllerAddress, command;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, askQuestion("Please enter the CONTROLLER_ADDRESS: ")];
+                case 1:
+                    controllerAddress = _a.sent();
+                    command = "forge script script/dao/DeployDAOFreeMint.s.sol --broadcast --sig \"run(address)\" ".concat(controllerAddress, " --rpc-url ").concat(network, " ").concat(verify ? "--verify" : "");
+                    executeCommand(command);
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 function main() {
     return __awaiter(this, void 0, void 0, function () {
         var networkChoice, network, scenarioChoice, scenario, verify, verifyChoice, _a;
@@ -262,6 +292,8 @@ function main() {
                     console.log("5) A Restaurant with the MTSController owned by an EOA");
                     console.log("6) A Restaurant with the MTSController owned by a Safe");
                     console.log("7) A Mock ERC20 token");
+                    console.log("8) MTS DAO");
+                    console.log("9) MTS DAO with mintable power");
                     return [4 /*yield*/, askQuestion("Enter your choice (0/1/2/3/4/5/6/7) (default: 0): ")];
                 case 2:
                     scenarioChoice = _b.sent();
@@ -284,52 +316,64 @@ function main() {
                         case "5": return [3 /*break*/, 15];
                         case "6": return [3 /*break*/, 17];
                         case "7": return [3 /*break*/, 19];
+                        case "8": return [3 /*break*/, 21];
+                        case "9": return [3 /*break*/, 23];
                     }
-                    return [3 /*break*/, 21];
+                    return [3 /*break*/, 25];
                 case 5: return [4 /*yield*/, deployTestScenario(network, verify)];
                 case 6:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("SetUpTestScenario.s.sol", true);
-                    return [3 /*break*/, 22];
+                    return [3 /*break*/, 26];
                 case 7: return [4 /*yield*/, deploySafe(network, verify)];
                 case 8:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeploySafe.s.sol", false);
-                    return [3 /*break*/, 22];
+                    return [3 /*break*/, 26];
                 case 9: return [4 /*yield*/, deployMTSController(network, verify)];
                 case 10:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMTSController.s.sol", true);
-                    return [3 /*break*/, 22];
+                    return [3 /*break*/, 26];
                 case 11: return [4 /*yield*/, deployMTSControllerWithRestaurant(network, verify)];
                 case 12:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMinimalScenarioWithPkOwner.s.sol", true);
-                    return [3 /*break*/, 22];
+                    return [3 /*break*/, 26];
                 case 13: return [4 /*yield*/, deploySafeMTSControllerResturant(network, verify)];
                 case 14:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMinimalScenarioWithSafeOwner.s.sol", true);
-                    return [3 /*break*/, 22];
+                    return [3 /*break*/, 26];
                 case 15: return [4 /*yield*/, deployAResturantWithEOA(network, verify)];
                 case 16:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployResturantWithPkOwner.s.sol", false);
-                    return [3 /*break*/, 22];
+                    return [3 /*break*/, 26];
                 case 17: return [4 /*yield*/, deployAResturantWithSafe(network, verify)];
                 case 18:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployResturantWithSafeOwner.s.sol", false);
-                    return [3 /*break*/, 22];
+                    return [3 /*break*/, 26];
                 case 19: return [4 /*yield*/, deployAMockERC20(network, verify)];
                 case 20:
                     _b.sent();
                     (0, generateTsAbis_js_1.generateTsAbis)("DeployMockErc20.s.sol", false);
-                    return [3 /*break*/, 22];
-                case 21:
-                    console.log("Invalid choice. Exiting...");
-                    return [3 /*break*/, 22];
+                    return [3 /*break*/, 26];
+                case 21: return [4 /*yield*/, deployDAO(network, verify)];
                 case 22:
+                    _b.sent();
+                    (0, generateTsAbis_js_1.generateTsAbis)("DeployDAO.s.sol", false);
+                    return [3 /*break*/, 26];
+                case 23: return [4 /*yield*/, deployDAOFreeMint(network, verify)];
+                case 24:
+                    _b.sent();
+                    (0, generateTsAbis_js_1.generateTsAbis)("DeployDAOFreeMint.s.sol", false);
+                    return [3 /*break*/, 26];
+                case 25:
+                    console.log("Invalid choice. Exiting...");
+                    return [3 /*break*/, 26];
+                case 26:
                     rl.close();
                     return [2 /*return*/];
             }

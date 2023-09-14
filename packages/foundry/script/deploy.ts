@@ -180,6 +180,28 @@ async function deployAMockERC20(network: string, verify: boolean) {
   executeCommand(command);
 }
 
+async function deployDAO(network: string, verify: boolean) {
+  const controllerAddress = await askQuestion(
+    "Please enter the CONTROLLER_ADDRESS: "
+  );
+
+  const command = `forge script script/dao/DeployDAO.s.sol --broadcast --sig "run(address)" ${controllerAddress} --rpc-url ${network} ${
+    verify ? "--verify" : ""
+  }`;
+  executeCommand(command);
+}
+
+async function deployDAOFreeMint(network: string, verify: boolean) {
+  const controllerAddress = await askQuestion(
+    "Please enter the CONTROLLER_ADDRESS: "
+  );
+
+  const command = `forge script script/dao/DeployDAOFreeMint.s.sol --broadcast --sig "run(address)" ${controllerAddress} --rpc-url ${network} ${
+    verify ? "--verify" : ""
+  }`;
+  executeCommand(command);
+}
+
 async function main() {
   const networkChoice = await askQuestion(
     "Enter the network you want to deploy on (default: localhost): "
@@ -195,6 +217,8 @@ async function main() {
   console.log("5) A Restaurant with the MTSController owned by an EOA");
   console.log("6) A Restaurant with the MTSController owned by a Safe");
   console.log("7) A Mock ERC20 token");
+  console.log("8) MTS DAO");
+  console.log("9) MTS DAO with mintable power");
 
   const scenarioChoice = await askQuestion(
     "Enter your choice (0/1/2/3/4/5/6/7) (default: 0): "
@@ -242,6 +266,14 @@ async function main() {
     case "7":
       await deployAMockERC20(network, verify);
       generateTsAbis("DeployMockErc20.s.sol", false);
+      break;
+    case "8":
+      await deployDAO(network, verify);
+      generateTsAbis("DeployDAO.s.sol", false);
+      break;
+    case "9":
+      await deployDAOFreeMint(network, verify);
+      generateTsAbis("DeployDAOFreeMint.s.sol", false);
       break;
     default:
       console.log("Invalid choice. Exiting...");
