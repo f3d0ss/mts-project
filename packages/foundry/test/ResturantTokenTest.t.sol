@@ -14,6 +14,7 @@ contract ResturantTokenTest is PRBTest, StdCheats {
     string constant TOKEN_NAME = "Token Name";
     string constant TOKEN_SYMBOL = "TN";
     string constant NFT_URI = "ipfs://test";
+    string constant REVIEW_URI = "ipfs://review";
     uint32 constant RESERVATION_IN = 10_000;
     uint32 RESERVATION_DATE_TIMESTAMP;
     uint256 EXPIRATION_RANGE;
@@ -22,6 +23,7 @@ contract ResturantTokenTest is PRBTest, StdCheats {
     address USER_ADDRESS;
     uint256 USER_KEY;
     uint256 constant NFT_PRICE = 1 ether;
+    bytes4 constant erc5192Interface = 0xb45a3c0e;
     ERC20Mock nftPriceToken;
     ResturantToken resturantToken;
     MTSControllerMock controller;
@@ -36,6 +38,12 @@ contract ResturantTokenTest is PRBTest, StdCheats {
         nftPriceToken = new ERC20Mock();
         EXPIRATION_RANGE = resturantToken.EXPIRATION_RANGE();
         RESERVATION_DATE_TIMESTAMP = uint32(block.timestamp) + RESERVATION_IN;
+    }
+
+    function test_initialize_canInitialize() public {
+        address resturantTokenImplementation = address(new ResturantToken());
+        resturantToken = ResturantToken(Clones.clone(resturantTokenImplementation));
+        resturantToken.initialize(RESTURANT_OWNER_ADDRESS, address(controller), TOKEN_NAME, TOKEN_SYMBOL);
     }
 
     function test_safeMint_RevertWhen_calledByNotResturantOwner() public {
@@ -188,6 +196,20 @@ contract ResturantTokenTest is PRBTest, StdCheats {
     }
 
     /* ========================================================================== */
+    /*                                 sendReview                                 */
+    /* ========================================================================== */
+
+    function test_sendReview_RevertWhen_isNotOwner() public mintedTokenForSale soldToken usedToken {
+        vm.expectRevert();
+        resturantToken.sendReview(0, REVIEW_URI);
+    }
+
+    function test_sendReview_canAddReview() public mintedTokenForSale soldToken usedToken {
+        vm.startPrank(USER_ADDRESS);
+        resturantToken.sendReview(0, REVIEW_URI);
+    }
+
+    /* ========================================================================== */
     /*                               burnNftNotSold                               */
     /* ========================================================================== */
     function test_burnNftNotSold_RevertWhen_isNotOwner() public mintedTokenForSale {
@@ -274,6 +296,22 @@ contract ResturantTokenTest is PRBTest, StdCheats {
     }
 
     /* ========================================================================== */
+    /*                              getCounter                              */
+    /* ========================================================================== */
+    function test_getCounter_retrunTheAddressSetInTheConstructor() public {
+        uint256 returnGetCounter = resturantToken.getCounter();
+        assertEq(returnGetCounter, 0);
+    }
+
+    /* ========================================================================== */
+    /*                              isTokenUsed                              */
+    /* ========================================================================== */
+    function test_isTokenUsed_retrunTheAddressSetInTheConstructor() public mintedTokenForSale {
+        bool returnIsTokenUsed = resturantToken.isTokenUsed(0);
+        assertEq(returnIsTokenUsed, false);
+    }
+
+    /* ========================================================================== */
     /*                                   locked                                   */
     /* ========================================================================== */
     function test_locked_returnFalseIfTokenIsNotUsed() public mintedTokenForSale {
@@ -317,5 +355,16 @@ contract ResturantTokenTest is PRBTest, StdCheats {
     /* ========================================================================== */
     function test_tokenURI_returnTheTokenURISetInMint() public mintedTokenForSale {
         assertEq(resturantToken.tokenURI(0), NFT_URI);
+    }
+
+    /* ========================================================================== */
+    /*                              supportsInterface                             */
+    /* ========================================================================== */
+    function test_supportsInterface_supportERC5192() public mintedTokenForSale {
+        assertEq(resturantToken.supportsInterface(erc5192Interface), true);
+    }
+
+    function test_supportsInterface_forwardCall() public mintedTokenForSale {
+        assertEq(resturantToken.supportsInterface(0xffffffff), false);
     }
 }
