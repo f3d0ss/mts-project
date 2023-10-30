@@ -27,3 +27,9 @@
 - [ ] Markdown sanitization
 - [ ] Add button in mint do not spin
 - [ ] Possibility for multiple images
+- [ ] In `My NFTs` page add something in case 0 NFT
+- [ ] In `Resturant Shop` page add something in case 0 NFT
+- [ ] Connect to IPFS gateway if not node 
+- [ ] If not yet a review `Error connecting to IPFS` appear even if connected
+- [ ] In `Resturant Control` page do not show `Refund` button for used token
+- [ ] Possibility to change fee in `Controller Panel`
