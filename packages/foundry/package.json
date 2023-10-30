@@ -4,6 +4,7 @@
   "scripts": {
     "account": "node script/ListAccount.js",
     "chain": "anvil --config-out localhost.json",
+    "coverage": "forge coverage --report lcov && genhtml ./lcov.info  -o lcov.html",
     "fork": "anvil --fork-url ${0:-mainnet} --config-out localhost.json",
     "compile": "forge compile",
     "generate": "node script/generateAccount.js",

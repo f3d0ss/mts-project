@@ -13,3 +13,6 @@ docs/
 # Dotenv file
 .env
 localhost.json
+
+# Coverage report
+lcov.html

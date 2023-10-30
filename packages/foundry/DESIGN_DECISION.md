@@ -30,11 +30,11 @@ create a `ResturantToken`
 
 TOTHINK:
 
-- Use factory for ResturantToken
+- [x] Use factory for ResturantToken
   [link](https://consensys.net/diligence/blog/2019/09/factories-improve-smart-contract-security/) drawback: much more
   gas
 
-  - Factory of proxy (save gas) EIP 1167
+- [x] Factory of proxy (save gas) EIP 1167
 
 - Open dispute if client find resturant closed
 
@@ -43,3 +43,7 @@ TOTHINK:
 - Add versioning of ResturantToken contract
 
 - Dao should not need timelock since there is no meaning in exiting the DAO since you cannot transfer voting power
+
+- Mint with signed message from Resturant
+
+- Enforce token URI to be ipfs URI
