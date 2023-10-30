@@ -5,7 +5,7 @@ import { PRBTest } from "@prb/test/PRBTest.sol";
 import { console2 } from "forge-std/console2.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 import { ResturantToken } from "src/ResturantToken.sol";
-import { MTSControllerMock } from "./mocks/MTSControllerMock.sol";
+import { MTSControllerMock } from "../mocks/MTSControllerMock.sol";
 import { ERC20Mock } from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
 import { VerifySignature } from "src/lib/VerifySignature.sol";
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
@@ -360,11 +360,11 @@ contract ResturantTokenTest is PRBTest, StdCheats {
     /* ========================================================================== */
     /*                              supportsInterface                             */
     /* ========================================================================== */
-    function test_supportsInterface_supportERC5192() public mintedTokenForSale {
+    function test_supportsInterface_supportERC5192() public {
         assertEq(resturantToken.supportsInterface(erc5192Interface), true);
     }
 
-    function test_supportsInterface_forwardCall() public mintedTokenForSale {
+    function test_supportsInterface_forwardCall() public {
         assertEq(resturantToken.supportsInterface(0xffffffff), false);
     }
 }

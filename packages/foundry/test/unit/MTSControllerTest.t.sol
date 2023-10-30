@@ -6,7 +6,7 @@ import { console2 } from "forge-std/console2.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 import { MTSController } from "src/MTSController.sol";
 import { ResturantToken } from "src/ResturantToken.sol";
-import { ResturantTokenMock } from "./mocks/ResturantTokenMock.sol";
+import { ResturantTokenMock } from "../mocks/ResturantTokenMock.sol";
 import { ERC20Mock } from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
 
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
