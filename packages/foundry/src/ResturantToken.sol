@@ -113,18 +113,6 @@ contract ResturantToken is
         _;
     }
 
-    // constructor(
-    //     address _owner,
-    //     address _mtsController,
-    //     string memory _name,
-    //     string memory _symbol
-    // )
-    //     ERC721(_name, _symbol)
-    // {
-    //     s_mtsController = IMTSController(_mtsController);
-    //     transferOwnership(_owner);
-    // }
-
     constructor() {
         _disableInitializers();
     }
@@ -201,7 +189,7 @@ contract ResturantToken is
         if (!isValidSignature) {
             revert ResturantToken__InvalidSignatureFromClient();
         }
-        payoutToken(tokenId);
+        _payoutToken(tokenId);
         // Maybe lock NFT and stop
         s_nfts[tokenId].locked = true;
         // ERC-5192
@@ -245,11 +233,11 @@ contract ResturantToken is
         if (s_nfts[tokenId].reservationDate + EXPIRATION_RANGE > block.timestamp) {
             revert ResturantToken__TokenNotYetBurnable();
         }
-        payoutToken(tokenId);
+        _payoutToken(tokenId);
         _burn(tokenId);
     }
 
-    function payoutToken(uint256 tokenId) internal {
+    function _payoutToken(uint256 tokenId) internal {
         uint256 price = s_nfts[tokenId].price;
         address paymentToken = s_nfts[tokenId].paymentToken;
 
