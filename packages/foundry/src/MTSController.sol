@@ -41,7 +41,8 @@ contract MTSController is IMTSController, Ownable {
         onlyOwner
         returns (ResturantToken)
     {
-        address newProxy = Clones.clone(s_resturantImplementation);
+        bytes32 salt = keccak256(abi.encodePacked(_name, _symbol));
+        address newProxy = Clones.cloneDeterministic(s_resturantImplementation, salt);
         ResturantToken newResturant = ResturantToken(newProxy);
         newResturant.initialize(_resturantOwner, address(this), _name, _symbol);
         s_resturantAddresses.push(address(newResturant));
@@ -78,7 +79,7 @@ contract MTSController is IMTSController, Ownable {
         emit SetAcceptableMinPrice(paymentToken, 0);
     }
 
-    function setBasePintFees(address paymentToken, uint256 basePointFees) external onlyOwner {
+    function setBasePointFees(address paymentToken, uint256 basePointFees) external onlyOwner {
         if (basePointFees >= MAX_BASE_POINT) revert MTSController__FeeCantBeMoreThanOneundredPercent();
 
         s_basePointFees[paymentToken] = basePointFees;
@@ -120,9 +121,6 @@ contract MTSController is IMTSController, Ownable {
         }
         uint256 numberOfTokens = tokens.length;
         for (uint256 i = 0; i < numberOfTokens;) {
-            if (s_acceptableMinPrices[tokens[i]] == 0) {
-                revert MTSController__UnacceptableToken();
-            }
             bool success = IERC20(tokens[i]).transfer(to, balances[i]);
             if (!success) {
                 revert MTSController__CannotTransferToken();
