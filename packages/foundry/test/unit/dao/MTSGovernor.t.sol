@@ -43,6 +43,8 @@ contract MTSGovernorTest is PRBTest, StdCheats {
     /* ========================================================================== */
 
     function test_quorum_returnQuorum() public {
+        vm.mockCall(votingToken, abi.encodeWithSelector(IVotes.getPastTotalSupply.selector, 0), abi.encode(100));
+        vm.mockCall(votingToken, abi.encodeWithSelector(IVotes.getPastTotalSupply.selector, 0), abi.encode(100));
         assertEq(governor.quorum(0), INITIAL_QUORUM);
     }
 
