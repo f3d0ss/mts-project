@@ -46,6 +46,10 @@ contract ResturantTokenTest is PRBTest, StdCheats {
         resturantToken.initialize(RESTURANT_OWNER_ADDRESS, address(controller), TOKEN_NAME, TOKEN_SYMBOL);
     }
 
+    /* ========================================================================== */
+    /*                                  safeMint                                  */
+    /* ========================================================================== */
+
     function test_safeMint_RevertWhen_calledByNotResturantOwner() public {
         vm.expectRevert();
         resturantToken.safeMint(NFT_PRICE, address(nftPriceToken), RESERVATION_DATE_TIMESTAMP, NFT_URI);
