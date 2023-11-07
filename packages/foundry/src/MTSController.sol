@@ -44,22 +44,22 @@ contract MTSController is IMTSController, Ownable {
         bytes32 salt = keccak256(abi.encode(_name, _symbol));
         address newProxy = Clones.cloneDeterministic(s_resturantImplementation, salt);
         ResturantToken newResturant = ResturantToken(newProxy);
-        newResturant.initialize(_resturantOwner, address(this), _name, _symbol);
         s_resturantAddresses.push(address(newResturant));
         emit AddNewResturant(s_resturantAddresses.length - 1, address(newResturant), _name);
+        newResturant.initialize(_resturantOwner, address(this), _name, _symbol);
         return newResturant;
     }
 
     function pauseResturant(uint256 index) external onlyOwner {
         ResturantToken resturant = ResturantToken(s_resturantAddresses[index]);
-        resturant.pause();
         emit PausedResturant(index, address(resturant), resturant.name());
+        resturant.pause();
     }
 
     function unpauseResturant(uint256 index) external onlyOwner {
         ResturantToken resturant = ResturantToken(s_resturantAddresses[index]);
-        resturant.unpause();
         emit UnpausedResturant(index, address(resturant), resturant.name());
+        resturant.unpause();
     }
 
     function removeResturant(uint256 index) external onlyOwner {

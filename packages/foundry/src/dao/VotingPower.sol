@@ -83,8 +83,8 @@ contract VotingPower is ERC721, EIP712, ERC721Votes, IERC5192 {
         uint256 votingTokenId = s_tokenIdCounter.current();
         s_tokenIdCounter.increment();
         s_resturantTokenToVotingPower[resturant][resturantTokenId] = votingTokenId;
-        _safeMint(_msgSender(), votingTokenId);
         emit Locked(votingTokenId);
+        _safeMint(_msgSender(), votingTokenId);
     }
 
     function _beforeTokenTransfer(
