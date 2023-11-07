@@ -27,8 +27,8 @@ contract MTSController is IMTSController, Ownable {
     error MTSController__FeeCantBeMoreThanOneundredPercent();
     error MTSController__MinimumPriceCannotBeZero();
 
-    constructor(address _owner, address _resturantImplemetnation) {
-        transferOwnership(_owner);
+    constructor(address _controllerOwner, address _resturantImplemetnation) {
+        transferOwnership(_controllerOwner);
         s_resturantImplementation = _resturantImplemetnation;
     }
 
@@ -41,7 +41,7 @@ contract MTSController is IMTSController, Ownable {
         onlyOwner
         returns (ResturantToken)
     {
-        bytes32 salt = keccak256(abi.encodePacked(_name, _symbol));
+        bytes32 salt = keccak256(abi.encode(_name, _symbol));
         address newProxy = Clones.cloneDeterministic(s_resturantImplementation, salt);
         ResturantToken newResturant = ResturantToken(newProxy);
         newResturant.initialize(_resturantOwner, address(this), _name, _symbol);
