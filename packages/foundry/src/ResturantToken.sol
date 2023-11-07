@@ -17,6 +17,7 @@
 pragma solidity ^0.8.19;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC721ReceiverUpgradeable } from
     "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
 import { ERC721EnumerableUpgradeable } from
@@ -40,6 +41,7 @@ contract ResturantToken is
     IERC5192
 {
     using Counters for Counters.Counter;
+    using SafeERC20 for IERC20;
 
     struct NFT {
         uint256 price;
@@ -106,8 +108,8 @@ contract ResturantToken is
         _;
     }
 
-    modifier isNftOwner(uint256 tokenId, address _owner) {
-        if (ownerOf(tokenId) != _owner) {
+    modifier isNftOwner(uint256 tokenId, address _nftOwner) {
+        if (ownerOf(tokenId) != _nftOwner) {
             revert ResturantToken__SenderIsNotNftOwner();
         }
         _;
@@ -118,20 +120,20 @@ contract ResturantToken is
     }
 
     function initialize(
-        address _owner,
+        address _resturantOwner,
         address _mtsController,
-        string memory _name,
-        string memory _symbol
+        string memory _resturantName,
+        string memory _nftSymbol
     )
         public
         initializer
     {
-        __ERC721_init(_name, _symbol);
+        __ERC721_init(_resturantName, _nftSymbol);
         __ERC721Enumerable_init();
         __Pausable_init();
         __Ownable_init();
         s_mtsController = IMTSController(_mtsController);
-        transferOwnership(_owner);
+        transferOwnership(_resturantOwner);
     }
 
     function safeMint(
@@ -162,15 +164,12 @@ contract ResturantToken is
         emit Unlocked(tokenId);
     }
 
-    function buyNFT(uint256 tokenId) external payable isForSale(tokenId) {
+    function buyNFT(uint256 tokenId) external isForSale(tokenId) {
         uint256 salePrice = s_nfts[tokenId].price;
         address paymentToken = s_nfts[tokenId].paymentToken;
-        bool success = IERC20(paymentToken).transferFrom(_msgSender(), address(this), salePrice);
-        if (!success) {
-            revert ResturantToken__TransferFailed();
-        }
         address newOwner = _msgSender();
         _transfer(address(this), newOwner, tokenId);
+        IERC20(paymentToken).safeTransferFrom(_msgSender(), address(this), salePrice);
     }
 
     function useTicket(
@@ -189,9 +188,8 @@ contract ResturantToken is
         if (!isValidSignature) {
             revert ResturantToken__InvalidSignatureFromClient();
         }
-        _payoutToken(tokenId);
-        // Maybe lock NFT and stop
         s_nfts[tokenId].locked = true;
+        _payoutToken(tokenId);
         // ERC-5192
         emit Locked(tokenId);
     }
@@ -225,16 +223,16 @@ contract ResturantToken is
     function refund(uint256 tokenId) external onlyOwner isSold(tokenId) {
         uint256 salePrice = s_nfts[tokenId].price;
         address paymentToken = s_nfts[tokenId].paymentToken;
-        IERC20(paymentToken).transfer(_ownerOf(tokenId), salePrice);
         _burn(tokenId);
+        IERC20(paymentToken).safeTransfer(_ownerOf(tokenId), salePrice);
     }
 
     function burnTicketNotConsumed(uint256 tokenId) external onlyOwner /* Maybe not onlyOwner */ isSold(tokenId) {
         if (s_nfts[tokenId].reservationDate + EXPIRATION_RANGE > block.timestamp) {
             revert ResturantToken__TokenNotYetBurnable();
         }
-        _payoutToken(tokenId);
         _burn(tokenId);
+        _payoutToken(tokenId);
     }
 
     function _payoutToken(uint256 tokenId) internal {
@@ -244,8 +242,8 @@ contract ResturantToken is
         uint256 ppFeeMTSDao = s_mtsController.getFeeInBasePoint(paymentToken);
         require(ppFeeMTSDao < 10_000, "fee can't be more than 100%");
         uint256 feeMTSDao = (price * ppFeeMTSDao) / 10_000;
-        IERC20(paymentToken).transfer(address(s_mtsController), feeMTSDao);
-        IERC20(paymentToken).transfer(owner(), price - feeMTSDao);
+        IERC20(paymentToken).safeTransfer(address(s_mtsController), feeMTSDao);
+        IERC20(paymentToken).safeTransfer(owner(), price - feeMTSDao);
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
