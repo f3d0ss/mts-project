@@ -4,7 +4,7 @@
   "scripts": {
     "account": "node script/ListAccount.js",
     "chain": "anvil --config-out localhost.json",
-    "coverage": "forge coverage --report lcov && genhtml ./lcov.info  -o lcov.html",
+    "coverage": "forge coverage --report lcov && lcov --remove lcov.info 'script' 'test' 'src/dao/VotingPowerFreeMint.sol' -o lcov.info && genhtml ./lcov.info  -o lcov.html --dark-mode --flat",
     "fork": "anvil --fork-url ${0:-mainnet} --config-out localhost.json",
     "compile": "forge compile",
     "generate": "node script/generateAccount.js",
