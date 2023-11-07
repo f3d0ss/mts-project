@@ -47,3 +47,5 @@ TOTHINK:
 - Mint with signed message from Resturant
 
 - Enforce token URI to be ipfs URI
+
+- `useToken` may revert 
