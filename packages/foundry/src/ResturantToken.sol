@@ -145,7 +145,7 @@ contract ResturantToken is
         external
         onlyOwner
     {
-        // check if price and paymentToken are acceptable by mtsDAO
+        // check if price and paymentToken are acceptable by controller
         if (!s_mtsController.isPriceAcceptable(paymentToken, price)) {
             revert ResturantToken__PriceNotAcceptable();
         }
@@ -189,9 +189,9 @@ contract ResturantToken is
             revert ResturantToken__InvalidSignatureFromClient();
         }
         s_nfts[tokenId].locked = true;
-        _payoutToken(tokenId);
         // ERC-5192
         emit Locked(tokenId);
+        _payoutToken(tokenId);
     }
 
     /**
