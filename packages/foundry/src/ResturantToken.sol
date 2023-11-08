@@ -14,7 +14,7 @@
 // Functions
 
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.18;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -95,14 +95,14 @@ contract ResturantToken is
     }
 
     modifier isNotUsed(uint256 tokenId) {
-        if (s_nfts[tokenId].locked == true) {
+        if (s_nfts[tokenId].locked) {
             revert ResturantToken__TokenAlreadyUsed();
         }
         _;
     }
 
     modifier isUsed(uint256 tokenId) {
-        if (s_nfts[tokenId].locked == false) {
+        if (!s_nfts[tokenId].locked) {
             revert ResturantToken__TokenNotUsed();
         }
         _;

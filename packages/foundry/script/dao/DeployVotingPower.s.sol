@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.18;
 
 import { BaseScript } from "../Base.s.sol";
 import { VotingPower } from "src/dao/VotingPower.sol";
