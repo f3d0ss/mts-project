@@ -67,7 +67,7 @@ contract MTSControllerIntegrationTest is PRBTest, StdCheats, GasHelpers {
 
     function test_unpauseResturant() public withAResturantDeployed withAResturantPaused(0) {
         vm.prank(controllerOwner);
-        startMeasuringGas("Pause a resturant");
+        startMeasuringGas("Unpause a resturant");
         controller.unpauseResturant(0);
         stopMeasuringGas();
     }
