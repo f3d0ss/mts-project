@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import { PRBTest } from "@prb/test/PRBTest.sol";
 import { console2 } from "forge-std/console2.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 import { ResturantToken } from "src/ResturantToken.sol";
 import { MTSControllerMock } from "../mocks/MTSControllerMock.sol";
-import { ERC20Mock } from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
+import { ERC20Mock } from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 import { VerifySignature } from "src/lib/VerifySignature.sol";
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 

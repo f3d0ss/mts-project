@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import { PRBTest } from "@prb/test/PRBTest.sol";
 import { console2 } from "forge-std/console2.sol";
@@ -8,7 +8,7 @@ import { GasHelpers } from "test/util/GasHelpers.sol";
 import { MTSController } from "src/MTSController.sol";
 import { DeployMTSController } from "script/DeployMTSController.s.sol";
 import { ResturantToken } from "src/ResturantToken.sol";
-import { ERC20Mock } from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
+import { ERC20Mock } from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 
 contract MTSControllerIntegrationTest is PRBTest, StdCheats, GasHelpers {
     address controllerOwner;

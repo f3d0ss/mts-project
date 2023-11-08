@@ -14,16 +14,16 @@
 // Functions
 
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IERC721ReceiverUpgradeable } from
-    "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
+import { IERC721Receiver } from "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
+
 import { ERC721EnumerableUpgradeable } from
     "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import { Counters } from "@openzeppelin/contracts/utils/Counters.sol";
-import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import { ERC721PausableUpgradeable } from
+    "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
 import { VerifySignature } from "src/lib/VerifySignature.sol";
 import { IMTSController } from "src/IMTSController.sol";
 import { ERC721Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -33,12 +33,9 @@ contract ResturantTokenMock is
     Initializable,
     ERC721Upgradeable,
     ERC721EnumerableUpgradeable,
-    PausableUpgradeable,
-    OwnableUpgradeable,
-    IERC721ReceiverUpgradeable
+    ERC721PausableUpgradeable,
+    OwnableUpgradeable
 {
-    using Counters for Counters.Counter;
-
     struct NFT {
         uint256 price;
         address paymentToken;
@@ -50,7 +47,7 @@ contract ResturantTokenMock is
 
     uint256 public constant EXPIRATION_RANGE = 24 * 60 * 60; // one day
 
-    Counters.Counter private s_tokenIdCounter;
+    uint256 private s_tokenIdCounter;
 
     mapping(uint256 => NFT) private s_nfts;
 
@@ -74,9 +71,8 @@ contract ResturantTokenMock is
         __ERC721_init(_name, _symbol);
         __ERC721Enumerable_init();
         __Pausable_init();
-        __Ownable_init();
+        __Ownable_init(_owner);
         s_mtsController = IMTSController(_mtsController);
-        transferOwnership(_owner);
     }
 
     /* ========================================================================== */
@@ -103,25 +99,25 @@ contract ResturantTokenMock is
         returns (bool)
     { }
 
-    function _beforeTokenTransfer(
-        address from,
+    function _update(
         address to,
-        uint256 firstTokenId,
-        uint256 batchSize
+        uint256 tokenId,
+        address auth
     )
         internal
-        virtual
-        override(ERC721EnumerableUpgradeable, ERC721Upgradeable)
-    { }
+        override(ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721PausableUpgradeable)
+        returns (address)
+    {
+        return super._update(to, tokenId, auth);
+    }
 
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
+    function _increaseBalance(
+        address account,
+        uint128 value
     )
-        external
-        override
-        returns (bytes4)
-    { }
+        internal
+        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
+    {
+        super._increaseBalance(account, value);
+    }
 }

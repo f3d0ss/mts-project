@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import { BaseScript } from "./Base.s.sol";
 import { MTSController } from "src/MTSController.sol";
@@ -7,7 +7,7 @@ import { ResturantToken } from "src/ResturantToken.sol";
 import { DeployMTSController } from "./DeployMTSController.s.sol";
 import { DeployMinimalScenarioWithPkOwner } from "./DeployMinimalScenarioWithPkOwner.s.sol";
 import { DeployMockErc20 } from "./DeployMockErc20.s.sol";
-import { ERC20Mock } from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
+import { ERC20Mock } from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 import { console2 } from "forge-std/console2.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 

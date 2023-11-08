@@ -14,17 +14,18 @@
 // Functions
 
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { IERC721ReceiverUpgradeable } from
-    "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol";
+import { IERC721Receiver } from "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 import { ERC721EnumerableUpgradeable } from
     "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import { Counters } from "@openzeppelin/contracts/utils/Counters.sol";
-import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import { ERC721PausableUpgradeable } from
+    "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
+import { ERC721BurnableUpgradeable } from
+    "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import { IERC5192 } from "./IERC5192.sol";
 import { VerifySignature } from "./lib/VerifySignature.sol";
 import { IMTSController } from "./IMTSController.sol";
@@ -35,12 +36,12 @@ contract ResturantToken is
     Initializable,
     ERC721Upgradeable,
     ERC721EnumerableUpgradeable,
-    PausableUpgradeable,
+    ERC721PausableUpgradeable,
     OwnableUpgradeable,
-    IERC721ReceiverUpgradeable,
-    IERC5192
+    ERC721BurnableUpgradeable,
+    IERC5192,
+    IERC721Receiver
 {
-    using Counters for Counters.Counter;
     using SafeERC20 for IERC20;
 
     struct NFT {
@@ -54,7 +55,7 @@ contract ResturantToken is
 
     uint256 public constant EXPIRATION_RANGE = 24 * 60 * 60; // one day
 
-    Counters.Counter private s_tokenIdCounter;
+    uint256 private s_tokenIdCounter;
 
     mapping(uint256 => NFT) private s_nfts;
 
@@ -88,7 +89,7 @@ contract ResturantToken is
     }
 
     modifier isSold(uint256 tokenId) {
-        if (!_exists(tokenId) || _ownerOf(tokenId) == address(this)) {
+        if (_ownerOf(tokenId) == address(0) || _ownerOf(tokenId) == address(this)) {
             revert ResturantToken__TokenNotSold();
         }
         _;
@@ -130,10 +131,10 @@ contract ResturantToken is
     {
         __ERC721_init(_resturantName, _nftSymbol);
         __ERC721Enumerable_init();
-        __Pausable_init();
-        __Ownable_init();
+        __ERC721Pausable_init();
+        __Ownable_init(_resturantOwner);
+        __ERC721Burnable_init();
         s_mtsController = IMTSController(_mtsController);
-        transferOwnership(_resturantOwner);
     }
 
     function safeMint(
@@ -149,8 +150,7 @@ contract ResturantToken is
         if (!s_mtsController.isPriceAcceptable(paymentToken, price)) {
             revert ResturantToken__PriceNotAcceptable();
         }
-        uint256 tokenId = s_tokenIdCounter.current();
-        s_tokenIdCounter.increment();
+        uint256 tokenId = s_tokenIdCounter++;
         _safeMint(address(this), tokenId);
         s_nfts[tokenId] = NFT({
             price: price,
@@ -223,8 +223,9 @@ contract ResturantToken is
     function refund(uint256 tokenId) external onlyOwner isSold(tokenId) {
         uint256 salePrice = s_nfts[tokenId].price;
         address paymentToken = s_nfts[tokenId].paymentToken;
+        address tokenOwner = _ownerOf(tokenId);
         _burn(tokenId);
-        IERC20(paymentToken).safeTransfer(_ownerOf(tokenId), salePrice);
+        IERC20(paymentToken).safeTransfer(tokenOwner, salePrice);
     }
 
     function burnTicketNotConsumed(uint256 tokenId) external onlyOwner /* Maybe not onlyOwner */ isSold(tokenId) {
@@ -282,7 +283,7 @@ contract ResturantToken is
     }
 
     function getCounter() external view returns (uint256) {
-        return s_tokenIdCounter.current();
+        return s_tokenIdCounter;
     }
 
     function getNft(uint256 tokenId) external view returns (NFT memory) {
@@ -327,15 +328,25 @@ contract ResturantToken is
         return super.supportsInterface(interfaceId);
     }
 
-    function _beforeTokenTransfer(
-        address from,
+    function _update(
         address to,
         uint256 tokenId,
-        uint256 batchSize
+        address auth
+    )
+        internal
+        override(ERC721Upgradeable, ERC721EnumerableUpgradeable, ERC721PausableUpgradeable)
+        returns (address)
+    {
+        return super._update(to, tokenId, auth);
+    }
+
+    function _increaseBalance(
+        address account,
+        uint128 value
     )
         internal
         override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
     {
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+        super._increaseBalance(account, value);
     }
 }

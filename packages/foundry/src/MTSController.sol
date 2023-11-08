@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -27,8 +27,7 @@ contract MTSController is IMTSController, Ownable {
     error MTSController__FeeCantBeMoreThanOneundredPercent();
     error MTSController__MinimumPriceCannotBeZero();
 
-    constructor(address _controllerOwner, address _resturantImplemetnation) {
-        transferOwnership(_controllerOwner);
+    constructor(address _controllerOwner, address _resturantImplemetnation) Ownable(_controllerOwner) {
         s_resturantImplementation = _resturantImplemetnation;
     }
 

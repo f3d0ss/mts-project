@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import { PRBTest } from "@prb/test/PRBTest.sol";
 import { console2 } from "forge-std/console2.sol";
@@ -7,7 +7,9 @@ import { StdCheats } from "forge-std/StdCheats.sol";
 import { MTSController } from "src/MTSController.sol";
 import { ResturantToken } from "src/ResturantToken.sol";
 import { ResturantTokenMock } from "../mocks/ResturantTokenMock.sol";
-import { ERC20Mock } from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+
+import { ERC20Mock } from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 
 import { Clones } from "@openzeppelin/contracts/proxy/Clones.sol";
 
@@ -45,7 +47,7 @@ contract MTSControllerTest is PRBTest, StdCheats {
     /*                               addNewResturant                              */
     /* ========================================================================== */
     function test_addNewResturant_RevertWhen_notTheOwner() public {
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this)));
         controller.addNewResturant(RESTURANT_OWNER_ADDRESS, RESTURANT_NAME, RESTURANT_SYMBOL);
     }
 
@@ -68,7 +70,7 @@ contract MTSControllerTest is PRBTest, StdCheats {
     /* ========================================================================== */
 
     function test_pauseResturant_RevertWhen_notTheOwner() public {
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this)));
         controller.pauseResturant(0);
     }
 
@@ -97,7 +99,7 @@ contract MTSControllerTest is PRBTest, StdCheats {
     /* ========================================================================== */
 
     function test_unpauseResturant_RevertWhen_notTheOwner() public {
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this)));
         controller.unpauseResturant(0);
     }
 
@@ -123,7 +125,7 @@ contract MTSControllerTest is PRBTest, StdCheats {
     /*                               removeResturant                              */
     /* ========================================================================== */
     function test_removeResturant_RevertWhen_notTheOwner() public {
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this)));
         controller.removeResturant(0);
     }
 
@@ -143,7 +145,7 @@ contract MTSControllerTest is PRBTest, StdCheats {
     /*                            setAcceptableMinPrice                           */
     /* ========================================================================== */
     function test_setAcceptableMinPrice_RevertWhen_notTheOwner() public {
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this)));
         controller.setAcceptableMinPrice(PAYMENT_TOKEN, MINIMUM_PAYMENT_TOKEN);
     }
 
@@ -158,7 +160,7 @@ contract MTSControllerTest is PRBTest, StdCheats {
     /*                            removeAcceptableToken                           */
     /* ========================================================================== */
     function test_removeAcceptableToken_RevertWhen_notTheOwner() public {
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this)));
         controller.removeAcceptableToken(PAYMENT_TOKEN);
     }
 
@@ -178,7 +180,7 @@ contract MTSControllerTest is PRBTest, StdCheats {
     /*                               setBasePointFees                              */
     /* ========================================================================== */
     function test_setBasePointFees_RevertWhen_notTheOwner() public {
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this)));
         controller.setBasePointFees(PAYMENT_TOKEN, PAYMENT_TOKEN_FEE);
     }
 
@@ -221,7 +223,7 @@ contract MTSControllerTest is PRBTest, StdCheats {
         tokensToWithdraw[0] = PAYMENT_TOKEN;
         uint256[] memory amountOfTokens = new uint256[](1);
         amountOfTokens[0] = PAYMENT_TOKEN_FEE;
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, address(this)));
         controller.withdrawFunds(tokensToWithdraw, amountOfTokens, CONTROLLER_OWNER_ADDRESS);
     }
 

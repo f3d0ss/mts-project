@@ -1,23 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { EIP712 } from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import { ERC721Votes } from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
 import { ResturantToken } from "../ResturantToken.sol";
 import { MTSController } from "../MTSController.sol";
-import { Counters } from "@openzeppelin/contracts/utils/Counters.sol";
 import { IERC5192 } from "../IERC5192.sol";
 
 contract VotingPower is ERC721, EIP712, ERC721Votes, IERC5192 {
-    using Counters for Counters.Counter;
-
     MTSController immutable CONTROLLER;
 
     mapping(address resturantAddress => mapping(uint256 resturantTokenId => uint256 votingTokenId))
         s_resturantTokenToVotingPower;
 
-    Counters.Counter private s_tokenIdCounter;
+    uint256 private s_tokenIdCounter;
 
     error VotingPower__NotValidResturantAddress();
     error VotingPower__TokenNotYetUsed();
@@ -45,7 +42,7 @@ contract VotingPower is ERC721, EIP712, ERC721Votes, IERC5192 {
 
     constructor(address _controller) ERC721("VotingPower", "VP") EIP712("VotingPower", "1") {
         // Start counter from one
-        s_tokenIdCounter.increment();
+        s_tokenIdCounter++;
         CONTROLLER = MTSController(_controller);
     }
 
@@ -80,25 +77,28 @@ contract VotingPower is ERC721, EIP712, ERC721Votes, IERC5192 {
         senderIsTokenOwner(resturant, resturantTokenId)
         notAlreadyClaimed(resturant, resturantTokenId)
     {
-        uint256 votingTokenId = s_tokenIdCounter.current();
-        s_tokenIdCounter.increment();
+        uint256 votingTokenId = s_tokenIdCounter++;
         s_resturantTokenToVotingPower[resturant][resturantTokenId] = votingTokenId;
         emit Locked(votingTokenId);
         _safeMint(_msgSender(), votingTokenId);
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address, /* to */
-        uint256, /* firstTokenId */
-        uint256 /* batchSize */
+    function _update(
+        address to,
+        uint256 tokenId,
+        address auth
     )
         internal
-        pure
-        override
+        override(ERC721, ERC721Votes)
+        returns (address)
     {
         // Revert if not minting
-        if (from != address(0)) revert VotingPower__VotingPowerTokenIsSoulbounded();
+        if (_ownerOf(tokenId) != address(0) && to != address(0)) revert VotingPower__VotingPowerTokenIsSoulbounded();
+        return super._update(to, tokenId, auth);
+    }
+
+    function _increaseBalance(address account, uint128 value) internal override(ERC721, ERC721Votes) {
+        super._increaseBalance(account, value);
     }
 
     // Overrides IERC6372 functions to make the token & governor timestamp-based
@@ -124,19 +124,5 @@ contract VotingPower is ERC721, EIP712, ERC721Votes, IERC5192 {
         // ERC-5192
         if (interfaceId == 0xb45a3c0e) return true;
         return super.supportsInterface(interfaceId);
-    }
-
-    // The following functions are overrides required by Solidity.
-
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 batchSize
-    )
-        internal
-        override(ERC721, ERC721Votes)
-    {
-        super._afterTokenTransfer(from, to, tokenId, batchSize);
     }
 }
