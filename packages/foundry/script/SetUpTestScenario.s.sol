@@ -12,35 +12,39 @@ import { console2 } from "forge-std/console2.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SetUpTestScenario is BaseScript {
+    struct Resturant {
+        string name;
+        string symbol;
+        address owner;
+    }
+
     uint32 constant TEN_DAYS = 10 * 60 * 60 * 24;
 
     function run() public exportDeployments returns (MTSController, ResturantToken[] memory) {
-        uint256 NUMBER_OF_RESTURANT = vm.envUint("NUMBER_OF_RESTURANT");
         uint256 NUMBER_OF_NFT_PER_RESTURANT = vm.envUint("NUMBER_OF_NFT_PER_RESTURANT");
         address[] memory RESTURANT_OWNERS = vm.envAddress("RESTURANT_OWNERS", ",");
-        string memory BASE_RESTURANT_TOKEN_NAME = vm.envString("RESTURANT_TOKEN_NAME");
-        string memory BASE_RESTURANT_TOKEN_SYMBOL = vm.envString("RESTURANT_TOKEN_SYMBOL");
         string memory IPFS_METADATA_BASE = vm.envString("IPFS_METADATA_BASE");
         uint256 CONTROLLER_OWNER_PK = vm.envUint("MTS_OWNER");
         uint256[] memory BUYERS_PKS = vm.envUint("BUYERS_PKS", ",");
         address controllerOwnersAdddress = vm.addr(CONTROLLER_OWNER_PK);
         fundAddress(controllerOwnersAdddress);
 
+        Resturant[] memory structResturants = new Resturant[](3);
+        structResturants[0] =
+            Resturant({ name: "Fancy Resturant", symbol: "FR", owner: RESTURANT_OWNERS[0 % RESTURANT_OWNERS.length] });
+        structResturants[1] =
+            Resturant({ name: "GoodToEat", symbol: "FR", owner: RESTURANT_OWNERS[1 % RESTURANT_OWNERS.length] });
+        structResturants[2] =
+            Resturant({ name: "Buterin's House", symbol: "FR", owner: RESTURANT_OWNERS[2 % RESTURANT_OWNERS.length] });
+
         MTSController controller = new DeployMTSController().run(controllerOwnersAdddress);
 
-        ResturantToken[] memory resturantTokens = addNewResturants(
-            controller,
-            CONTROLLER_OWNER_PK,
-            NUMBER_OF_RESTURANT,
-            RESTURANT_OWNERS,
-            BASE_RESTURANT_TOKEN_NAME,
-            BASE_RESTURANT_TOKEN_SYMBOL
-        );
+        ResturantToken[] memory resturantTokens = addNewResturants(controller, CONTROLLER_OWNER_PK, structResturants);
 
         ERC20Mock erc20 = new DeployMockErc20().run();
 
         vm.broadcast(CONTROLLER_OWNER_PK);
-        controller.setAcceptableMinPrice(address(erc20), 1);
+        controller.setAcceptableMinPrice(address(erc20), 0.01 ether);
 
         for (uint256 i = 0; i < RESTURANT_OWNERS.length; i++) {
             fundAddress(RESTURANT_OWNERS[i]);
@@ -83,22 +87,15 @@ contract SetUpTestScenario is BaseScript {
     function addNewResturants(
         MTSController controller,
         uint256 controllerOwnerPk,
-        uint256 numberOfResturant,
-        address[] memory resturantOwners,
-        string memory baseResturantTokenName,
-        string memory baseResturantTokenSymbol
+        Resturant[] memory resturants
     )
         internal
         returns (ResturantToken[] memory)
     {
-        ResturantToken[] memory resturantTokens = new ResturantToken[](numberOfResturant);
-        for (uint256 i = 0; i < numberOfResturant; i++) {
+        ResturantToken[] memory resturantTokens = new ResturantToken[](resturants.length);
+        for (uint256 i = 0; i < resturants.length; i++) {
             resturantTokens[i] = addNewResturant(
-                controller,
-                controllerOwnerPk,
-                resturantOwners[i % resturantOwners.length],
-                string.concat(baseResturantTokenName, Strings.toString(i)),
-                string.concat(baseResturantTokenSymbol, Strings.toString(i))
+                controller, controllerOwnerPk, resturants[i].owner, resturants[i].name, resturants[i].symbol
             );
         }
         return resturantTokens;
@@ -162,7 +159,7 @@ contract SetUpTestScenario is BaseScript {
                 (k + 1) * 1 ether,
                 paymentToken,
                 reservationDate,
-                string.concat(ipfsMetadataBase, Strings.toString(uint160(address(resturant)) % 1000 + k))
+                string.concat(ipfsMetadataBase, Strings.toString((uint160(address(resturant)) + k) % 10), ".json")
             );
         }
         vm.stopBroadcast();
