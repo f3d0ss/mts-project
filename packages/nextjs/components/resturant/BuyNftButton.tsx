@@ -16,7 +16,6 @@ export default function BuyNftButton({ nft }: BuyNftButtonProps) {
     abi: contracts.ResturantToken.abi,
     functionName: "buyNFT",
     args: [nft.id],
-    value: 0n,
   });
 
   const { writeAsync: buyToken } = useContractWrite(buyConfig);
