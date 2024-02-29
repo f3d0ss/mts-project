@@ -17,3 +17,6 @@ localhost.json
 # Coverage report
 lcov.html
 lcov.info
+
+
+.gas-snapshot
