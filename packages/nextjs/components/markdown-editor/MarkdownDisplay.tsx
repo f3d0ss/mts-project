@@ -1,14 +1,14 @@
-import React, { ReactNode } from "react";
+import React from "react";
+import Markdown from "react-markdown";
 
 type MarkdownDisplayProps = {
-  children?: ReactNode;
+  children?: string;
 };
 
 export default function MarkdownDisplay({ children }: MarkdownDisplayProps) {
-  const rootProps = typeof children === "string" ? { dangerouslySetInnerHTML: { __html: children } } : {};
   return (
-    <div className="prose border rounded-2xl p-1" {...rootProps}>
-      {typeof children !== "string" ? children : null}
+    <div className="prose border rounded-2xl p-1">
+      <Markdown>{children}</Markdown>
     </div>
   );
 }

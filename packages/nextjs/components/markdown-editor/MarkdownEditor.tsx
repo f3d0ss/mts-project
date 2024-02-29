@@ -4,6 +4,7 @@ import MenuBar from "./MenuBar";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import htmlToMarkdown from "@wcj/html-to-markdown";
 
 type MarkdownEditorProps = {
   value?: string;
@@ -38,6 +39,11 @@ export default function MarkdownEditor({ value, placeholder, onChange }: Markdow
 
   useEffect(() => {
     if (!onChange || typeof localValue !== "string" || localValue === value) return;
+    const init = async () => {
+      onChange(await htmlToMarkdown({ html: localValue }));
+    };
+    init();
+
     onChange(localValue as string);
   }, [localValue, onChange, value]);
 
