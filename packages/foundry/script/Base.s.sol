@@ -28,23 +28,8 @@ abstract contract BaseScript is Script {
         if (from != address(0)) {
             broadcaster = from;
         } else {
-            uint256 pk = getPrivateKeyFromEnv();
-            if (pk != 0) {
-                broadcaster = vm.rememberKey(pk);
-            } else {
-                mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
-                (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
-            }
-        }
-    }
-
-    function getPrivateKeyFromEnv() internal returns (uint256) {
-        if (block.chainid == 11_155_111) {
-            return vm.envOr({ name: "SEPOLIA_PRIVATE_KEY", defaultValue: uint256(0) });
-        } else if (block.chainid == 5) {
-            return vm.envOr({ name: "GOERLI_PRIVATE_KEY", defaultValue: uint256(0) });
-        } else {
-            return vm.envOr({ name: "ANVIL_PRIVATE_KEY", defaultValue: uint256(0) });
+            mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
+            (broadcaster,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
     }
 
