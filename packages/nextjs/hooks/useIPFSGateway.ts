@@ -1,8 +1,20 @@
 import { useEffect, useState } from "react";
 import { IPFSHTTPClient, create } from "kubo-rpc-client";
+import { CID } from "multiformats/cid";
 import { useInterval } from "usehooks-ts";
 
-const IPFS_POLLING_INTERVAL = 3000;
+const IPFS_POLLING_INTERVAL = 5000;
+const IPFS_GATEWAY = "ipfs.cf-ipfs.com";
+
+function convertIPFSUrlToGatwayURL(ipfsUrl: string): string {
+  // Extracting the hash part from the IPFS URL
+  let hash: string = ipfsUrl.split("://")[1].split("/")[0];
+  // Converto to CIDv1
+  hash = CID.parse(hash).toV1().toString();
+  // Building the converted URL
+  const convertedUrl = `https://${hash}.${IPFS_GATEWAY}${ipfsUrl.substring(ipfsUrl.lastIndexOf("/"))}`;
+  return convertedUrl;
+}
 
 export const useIPFSGateway = () => {
   const [ipfsHttpClient, setIpfsHttpClient] = useState<IPFSHTTPClient>();
@@ -56,7 +68,12 @@ export const useIPFSGateway = () => {
   const getFile = async (ipfsPath: string) => {
     try {
       if (!ipfsPath) throw Error("Path not provided");
-      if (!ipfsHttpClient) throw Error("IPFS not yet initialized");
+      if (!ipfsHttpClient || !(await ipfsHttpClient.isOnline())) {
+        const url = convertIPFSUrlToGatwayURL(ipfsPath);
+        const response = await fetch(url);
+        const data = await response.blob();
+        return new Uint8Array(await data.arrayBuffer());
+      }
       if (ipfsPath.startsWith("ipfs://")) {
         ipfsPath = ipfsPath.substring(7);
       }
